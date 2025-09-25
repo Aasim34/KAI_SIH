@@ -48,18 +48,22 @@ export default function Home() {
           Meet Kai - Your AI Friend for Student Wellness
         </h1>
         <div className="mb-8 flex justify-center">
-          <div className="relative">
-            <div className="w-40 h-40 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-              <KaiAvatar className="w-24 h-24 text-white" />
+            <div className="relative group w-48 h-48 flex items-center justify-center">
+              {/* Pulsing background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/50 via-blue-500/50 to-indigo-500/50 rounded-full animate-breathe group-hover:scale-110 transition-transform duration-500 ease-in-out"></div>
+              
+              {/* Avatar container */}
+              <div className="relative w-40 h-40 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl">
+                <KaiAvatar className="w-24 h-24 text-white" />
+              </div>
+
+              {/* Orbiting elements */}
+              <div className="absolute inset-0 animate-spin-slow">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-green-400 rounded-full opacity-80"></div>
+                <div className="absolute bottom-0 right-1/2 translate-x-1/2 translate-y-1/2 w-3 h-3 bg-pink-400 rounded-full opacity-80"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full opacity-80"></div>
+              </div>
             </div>
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-400 rounded-full flex items-center justify-center animate-bounce">
-              <span className="text-white text-sm">💚</span>
-            </div>
-            <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-pink-400 rounded-full flex items-center justify-center" style={{ animation: 'float 3s ease-in-out infinite' }}>
-              <span className="text-white text-xs">✨</span>
-            </div>
-            <div className="absolute top-4 -left-4 w-4 h-4 bg-yellow-400 rounded-full" style={{ animation: 'float 4s ease-in-out infinite reverse' }}></div>
-          </div>
         </div>
         <p className="text-xl text-foreground/70 dark:text-foreground/60 mb-8 max-w-2xl mx-auto">
           Your Mind Speaks, We Listen. Your Peace Starts Here.
