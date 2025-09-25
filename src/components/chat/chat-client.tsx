@@ -151,11 +151,11 @@ export function ChatClient() {
                 <h5 className="font-semibold text-sm mb-2">Voice Analysis</h5>
                 <div className="space-y-3">
                     <div>
-                        <div className="flex justify-between text-xs mb-1"><span>Volume</span><span>75%</span></div>
+                        <div className="flex justify-between items-center text-xs mb-1"><span>Volume</span><span className="font-medium">75%</span></div>
                         <Progress value={75} className="h-1"/>
                     </div>
                     <div>
-                        <div className="flex justify-between text-xs mb-1"><span>Clarity</span><span>90%</span></div>
+                        <div className="flex justify-between items-center text-xs mb-1"><span>Clarity</span><span className="font-medium">90%</span></div>
                         <Progress value={90} className="h-1"/>
                     </div>
                 </div>
