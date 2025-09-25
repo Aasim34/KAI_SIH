@@ -6,11 +6,9 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getKaiResponse } from '@/app/actions/chat';
 import type { Message } from '@/lib/types';
-import { Mic, Send, Video, VideoOff } from 'lucide-react';
-import { Progress } from '../ui/progress';
+import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type QuickMessage = {
   text: string;
@@ -33,42 +31,6 @@ export function ChatClient() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setHasCameraPermission(false);
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-      }
-    };
-    getCameraPermission();
-  }, []);
-
-  const toggleVideo = () => {
-    if (hasCameraPermission === false) {
-      toast({
-        variant: 'destructive',
-        title: 'Camera Access Denied',
-        description: 'Please enable camera permissions in your browser settings to use this feature.',
-      });
-      return;
-    }
-    setIsVideoEnabled(prev => !prev);
-  }
 
   const handleSendMessage = async (messageText: string, mood?: string) => {
     if (!messageText.trim()) return;
@@ -167,69 +129,6 @@ export function ChatClient() {
                         <Send className="w-5 h-5"/>
                     </Button>
                 </form>
-            </div>
-        </div>
-
-        <div className="w-80 border-l border-border p-4 space-y-4 hidden md:block shrink-0 overflow-y-auto">
-            <h4 className="font-semibold font-headline">Interaction Modes</h4>
-            <div className="glassmorphism p-3 rounded-xl space-y-3">
-              <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
-                <video ref={videoRef} className={cn("w-full h-full object-cover", isVideoEnabled ? "block" : "hidden")} autoPlay muted playsInline />
-                {!isVideoEnabled && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
-                    <VideoOff className="w-10 h-10" />
-                    <p className="text-xs mt-2">Video is off</p>
-                  </div>
-                )}
-              </div>
-
-              {hasCameraPermission === false && (
-                <Alert variant="destructive" className="p-3 text-xs">
-                  <AlertTitle className="font-semibold">Camera Access Required</AlertTitle>
-                  <AlertDescription>
-                    Please allow camera access in browser settings.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="w-full gap-2 bg-background/50">
-                  <Mic className="h-4 w-4"/>
-                  Voice
-                </Button>
-                <Button size="sm" variant="outline" className="w-full gap-2 bg-background/50" onClick={toggleVideo}>
-                  <Video className="h-4 w-4"/>
-                  {isVideoEnabled ? 'Stop Video' : 'Start Video'}
-                </Button>
-              </div>
-            </div>
-
-            <h4 className="font-semibold font-headline">Real-time Analysis</h4>
-            <div className="glassmorphism p-3 rounded-xl">
-                <h5 className="font-semibold text-sm mb-2">Current State</h5>
-                <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span>Mood</span><span className="text-green-600 dark:text-green-400">Positive</span></div>
-                    <div className="flex justify-between"><span>Stress</span><span className="text-yellow-600 dark:text-yellow-400">Moderate</span></div>
-                    <div className="flex justify-between"><span>Energy</span><span className="text-blue-600 dark:text-blue-400">High</span></div>
-                </div>
-            </div>
-            <div className="glassmorphism p-3 rounded-xl">
-                <h5 className="font-semibold text-sm mb-2">Voice Analysis</h5>
-                <div className="space-y-3">
-                    <div>
-                        <div className="flex justify-between items-center text-xs mb-1"><span>Volume</span><span className="font-medium">75%</span></div>
-                        <Progress value={75} className="h-1"/>
-                    </div>
-                    <div>
-                        <div className="flex justify-between items-center text-xs mb-1"><span>Clarity</span><span className="font-medium">90%</span></div>
-                        <Progress value={90} className="h-1"/>
-                    </div>
-                </div>
-            </div>
-            <div className="glassmorphism p-3 rounded-xl text-center">
-                <h5 className="font-semibold text-sm mb-2">Breathing Guide</h5>
-                <div className="breathing-circle mx-auto mb-2" style={{ width: '60px', height: '60px' }}></div>
-                <p className="text-xs text-muted-foreground">Follow the circle</p>
             </div>
         </div>
       </div>
