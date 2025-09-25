@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/personalized-wellness-recommendations.ts';
 import '@/ai/flows/video-analysis-flow.ts';
+import '@/ai/flows/voice-analysis-flow.ts';
