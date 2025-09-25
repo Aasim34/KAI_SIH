@@ -52,7 +52,7 @@ const analysisPrompt = ai.definePrompt({
   name: 'voiceAnalysisPrompt',
   input: {schema: VoiceAnalysisInputSchema},
   output: {schema: z.object({ analysis: VoiceAnalysisOutputSchema.shape.analysis })},
-  model: 'googleai/gemini-pro-vision',
+  model: 'googleai/gemini-2.5-flash',
   prompt: `You are an AI wellness assistant named Kai with expertise in analyzing vocal biomarkers to understand emotional states from audio. You are not a medical professional and must not provide a diagnosis.
 
   Analyze the provided 10-second audio recording. Listen to the user's tone, pitch, pace, volume, and clarity to assess their emotional state. Pay close attention to subtle cues that could indicate stress or anxiety.
