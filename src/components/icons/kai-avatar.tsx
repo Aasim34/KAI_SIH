@@ -7,21 +7,24 @@ export function KaiAvatar(props: SVGProps<SVGSVGElement>) {
       fill="currentColor"
       {...props}
     >
-      {/* Head */}
-      <path
-        d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-        opacity="0.1"
-      />
-      
-      {/* Ears */}
-      <path d="M8 8.5A2.5 2.5 0 0 1 5.5 6 2.5 2.5 0 0 1 8 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M16 8.5A2.5 2.5 0 0 0 18.5 6 2.5 2.5 0 0 0 16 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Glow */}
+      <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.1" />
 
-      {/* Face */}
-      <path d="M15.5,10.5a.5.5,0,1,1-.5-.5A.5.5,0,0,1,15.5,10.5Z" />
-      <path d="M8.5,10.5a.5.5,0,1,1-.5-.5A.5.5,0,0,1,8.5,10.5Z" />
-      <path d="M12 13a1 1 0 0 1-.71-.29 1 1 0 0 1 0-1.42 1 1 0 0 1 1.42 0 1 1 0 0 1 0 1.42A1 1 0 0 1 12 13Z" />
-      <path d="M9.5,16A2.5,2.5,0,0,0,12,18.5,2.5,2.5,0,0,0,14.5,16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      {/* Main Head */}
+      <circle cx="12" cy="12" r="8" fill="currentColor" opacity="0.2" />
+
+      {/* Inner face */}
+      <g transform="translate(0, -1)">
+        {/* Eyes */}
+        <circle cx="9.5" cy="11.5" r="1.2" fill="white" />
+        <circle cx="14.5" cy="11.5" r="1.2" fill="white" />
+
+        {/* Mouth */}
+        <path d="M9.5 15.5 C 10.5 17, 13.5 17, 14.5 15.5" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+        
+        {/* Little antenna */}
+        <path d="M12 6 V 4.5 M 12 3.5 a 1 1 0 1 1 0 -2 a 1 1 0 0 1 0 2" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
