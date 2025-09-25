@@ -28,12 +28,8 @@ export function VideoChatClient() {
         return;
       }
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        stream.getTracks().forEach(track => track.stop());
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
@@ -89,7 +85,7 @@ export function VideoChatClient() {
     setIsRecording(true);
 
     recordedChunksRef.current = [];
-    const mimeType = 'video/webm; codecs=vp9';
+    const mimeType = 'video/webm';
     mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
 
     mediaRecorderRef.current.ondataavailable = (event) => {
@@ -149,7 +145,7 @@ export function VideoChatClient() {
             <div className="flex-1 flex flex-col items-center justify-center p-4">
                 <div className="w-full max-w-2xl space-y-4">
                     <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden shadow-lg border border-white/20">
-                        <video ref={videoRef} className={cn("w-full h-full object-cover")} autoPlay muted playsInline />
+                        <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
                         <div className={cn("absolute inset-0 flex flex-col items-center justify-center text-muted-foreground p-4 text-center bg-black/50 transition-opacity",
                           { "opacity-0": isVideoEnabled }
                         )}>
@@ -175,7 +171,7 @@ export function VideoChatClient() {
                     )}
 
                     <div className="flex gap-4 justify-center">
-                        <Button size="lg" className="gap-2 h-12 px-6 text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white" onClick={handleStartAnalysis} disabled={isAnalyzing || isRecording}>
+                        <Button size="lg" className="gap-2 h-12 px-6 text-base bg-gradient-to-r from-purple-600 to-blue-600 text-white" onClick={handleStartAnalysis} disabled={hasCameraPermission === false || isAnalyzing || isRecording}>
                             {isAnalyzing ? (
                               <><Loader2 className="h-5 w-5 animate-spin"/> Analyzing...</>
                             ) : isRecording ? (

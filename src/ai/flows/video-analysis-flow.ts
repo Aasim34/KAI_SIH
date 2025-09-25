@@ -56,7 +56,7 @@ const videoAnalysisFlow = ai.defineFlow(
     name: 'videoAnalysisFlow',
     inputSchema: VideoAnalysisInputSchema,
     outputSchema: VideoAnalysisOutputSchema,
-    model: 'googleai/gemini-2.5-flash-image-preview', // Using a model with video understanding
+    model: 'googleai/gemini-pro-vision',
   },
   async input => {
     const {output} = await prompt(input);
