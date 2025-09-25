@@ -43,18 +43,41 @@ export function VideoChatClient() {
     const getCameraPermission = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+        });
         return;
       }
       try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        // This prompts the user for permission
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
-      } catch (error) {
+        // We have permission, but we don't need the stream right now, so we stop it.
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error: any) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
+        if (error.name === "NotAllowedError") {
+             toast({
+                variant: 'destructive',
+                title: 'Camera Access Denied',
+                description: 'Please enable camera permissions in your browser settings to use this feature.',
+                duration: 9000,
+             });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Camera Error',
+                description: 'Could not access the camera. Please ensure it is not in use by another application.',
+                duration: 9000,
+            });
+        }
       }
     };
     getCameraPermission();
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout;
