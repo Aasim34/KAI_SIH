@@ -2,32 +2,22 @@ import type { SVGProps } from 'react';
 
 export function KaiAvatar(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 100 100" fill="none" {...props}>
-      <defs>
-        <radialGradient id="kai-grad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-          <stop offset="0%" style={{stopColor: 'white', stopOpacity: 0.7}} />
-          <stop offset="100%" style={{stopColor: 'white', stopOpacity: 0}} />
-        </radialGradient>
-      </defs>
-      {/* Main body */}
-      <path d="M25 50 C25 25 75 25 75 50 C90 70 70 95 50 95 C30 95 10 70 25 50 Z" fill="currentColor" />
-      
-      {/* Face */}
-      <circle cx="42" cy="55" r="4" fill="white" />
-      <circle cx="58" cy="55" r="4" fill="white" />
-      <path d="M45 68 Q50 73 55 68" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-
-      {/* Antenna with light */}
-      <path d="M50 25 Q55 15 60 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="60" cy="10" r="4" fill="#6D28D9" />
-      <circle cx="60"cy="10" r="2" fill="white" />
-      
-      {/* Blush */}
-      <circle cx="35" cy="65" r="5" fill="white" opacity="0.2" />
-      <circle cx="65" cy="65" r="5" fill="white" opacity="0.2" />
-
-      {/* Reflection */}
-      <circle cx="50" cy="50" r="30" fill="url(#kai-grad)" opacity="0.5" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      {...props}
+    >
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-3.5 8c-.83 0-1.5-.67-1.5-1.5S7.67 7 8.5 7s1.5.67 1.5 1.5S9.33 10 8.5 10zm7 0c-.83 0-1.5-.67-1.5-1.5S14.67 7 15.5 7s1.5.67 1.5 1.5S16.33 10 15.5 10zm-2.5 5c-1.33 0-2.5-1-3.12-2.25c-.14-.28-.01-.63.26-.78c.28-.14.63-.01.78.26C11.3 13.08 12.1 13.5 13 13.5c.9 0 1.7-.42 2.18-1.27c.14-.28.49-.39.78-.26c.28.14.39.49.26.78C15.5 14 14.33 15 13 15z"
+        clipRule="evenodd"
+        fillRule="evenodd"
+      />
+      <path
+        d="M18.82 5.18C16.96 3.03 14.59 2 12 2S7.04 3.03 5.18 5.18C3.03 7.04 2 9.41 2 12s1.03 4.96 2.82 6.82C6.18 20.18 8.59 21.5 12 21.5s5.82-1.32 7.18-3.68c.14-.28-.01-.63-.28-.78c-.28-.14-.63.01-.78.28C17.38 18.66 14.86 20 12 20c-4.41 0-8-3.59-8-8s3.59-8 8-8c2.86 0 5.38 1.34 6.82 3.32c.14.28.49.39.78.26c.28-.14.39-.49.26-.78z"
+        opacity=".4"
+      />
+      <path d="M19.5 8.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5c0-.66.42-1.22.99-1.42c.14-.05.29.04.35.18c.05.14-.04.29-.18.35c-.29.1-.51.38-.51.7c0 .28.22.5.5.5s.5-.22.5-.5c0-.32-.22-.6-.51-.7c-.14-.05-.23-.2-.18-.35s.2-.23.35-.18C18.67 7.03 19.5 7.69 19.5 8.5z" />
+      <path d="M4.5 8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 .66-.42 1.22-.99 1.42c-.14.05-.29-.04-.35-.18c-.05-.14.04-.29.18-.35c.29.1.51.38.51.7c0 .28-.22.5-.5.5S6 9.28 6 9c0-.32.22-.6.51-.7c.14-.05.23-.2.18-.35s-.2-.23-.35-.18C5.33 7.03 4.5 7.69 4.5 8.5z" transform="matrix(-1 0 0 1 10.5 0)" />
     </svg>
   );
 }
