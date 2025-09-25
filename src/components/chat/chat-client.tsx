@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getKaiResponse } from '@/app/actions/chat';
 import type { Message } from '@/lib/types';
-import { Mic, Send, Video, Volume2 } from 'lucide-react';
+import { Mic, Send, Video, VideoOff } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type QuickMessage = {
   text: string;
@@ -32,6 +33,42 @@ export function ChatClient() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setHasCameraPermission(false);
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+    getCameraPermission();
+  }, []);
+
+  const toggleVideo = () => {
+    if (hasCameraPermission === false) {
+      toast({
+        variant: 'destructive',
+        title: 'Camera Access Denied',
+        description: 'Please enable camera permissions in your browser settings to use this feature.',
+      });
+      return;
+    }
+    setIsVideoEnabled(prev => !prev);
+  }
 
   const handleSendMessage = async (messageText: string, mood?: string) => {
     if (!messageText.trim()) return;
@@ -87,10 +124,6 @@ export function ChatClient() {
             <p className="text-sm opacity-90">Online • Ready to help</p>
           </div>
         </div>
-        <div className="flex gap-2">
-            <Button size="icon" variant="ghost" className="bg-white/20 hover:bg-white/30"><Mic className="h-5 w-5"/></Button>
-            <Button size="icon" variant="ghost" className="bg-white/20 hover:bg-white/30"><Video className="h-5 w-5"/></Button>
-        </div>
       </div>
       
       <div className="flex-1 flex overflow-hidden">
@@ -137,7 +170,40 @@ export function ChatClient() {
             </div>
         </div>
 
-        <div className="w-80 border-l border-border p-4 space-y-4 hidden md:block shrink-0">
+        <div className="w-80 border-l border-border p-4 space-y-4 hidden md:block shrink-0 overflow-y-auto">
+            <h4 className="font-semibold font-headline">Interaction Modes</h4>
+            <div className="glassmorphism p-3 rounded-xl space-y-3">
+              <div className="relative aspect-video bg-muted rounded-md overflow-hidden">
+                <video ref={videoRef} className={cn("w-full h-full object-cover", isVideoEnabled ? "block" : "hidden")} autoPlay muted playsInline />
+                {!isVideoEnabled && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
+                    <VideoOff className="w-10 h-10" />
+                    <p className="text-xs mt-2">Video is off</p>
+                  </div>
+                )}
+              </div>
+
+              {hasCameraPermission === false && (
+                <Alert variant="destructive" className="p-3 text-xs">
+                  <AlertTitle className="font-semibold">Camera Access Required</AlertTitle>
+                  <AlertDescription>
+                    Please allow camera access in browser settings.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="w-full gap-2 bg-background/50">
+                  <Mic className="h-4 w-4"/>
+                  Voice
+                </Button>
+                <Button size="sm" variant="outline" className="w-full gap-2 bg-background/50" onClick={toggleVideo}>
+                  <Video className="h-4 w-4"/>
+                  {isVideoEnabled ? 'Stop Video' : 'Start Video'}
+                </Button>
+              </div>
+            </div>
+
             <h4 className="font-semibold font-headline">Real-time Analysis</h4>
             <div className="glassmorphism p-3 rounded-xl">
                 <h5 className="font-semibold text-sm mb-2">Current State</h5>
