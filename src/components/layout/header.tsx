@@ -16,7 +16,8 @@ const navLinks = [
   { href: '/login', label: 'Login' },
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/chat', label: 'Chat with Kai' },
-  { href: '/av-chat', label: 'A/V Chat' },
+  { href: '/voice-chat', label: 'Voice Chat' },
+  { href: '/video-chat', label: 'Video Chat' },
 ];
 
 export function Header() {
