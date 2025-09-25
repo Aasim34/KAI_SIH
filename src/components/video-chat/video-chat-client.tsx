@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Video, VideoOff, Loader2 } from 'lucide-react';
+import { Video, VideoOff, Loader2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { analyzeVideo, VideoAnalysisOutput } from '@/ai/flows/video-analysis-flow';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { Badge } from '../ui/badge';
 
 export function VideoChatClient() {
   const { toast } = useToast();
@@ -185,7 +187,19 @@ export function VideoChatClient() {
             </div>
 
             <div className="w-80 border-l border-border p-4 space-y-4 hidden md:block shrink-0 overflow-y-auto">
-                <h4 className="font-semibold font-headline">Analysis Report</h4>
+                <div className="flex justify-between items-center">
+                    <h4 className="font-semibold font-headline">Analysis Report</h4>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Info className="w-4 h-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="max-w-xs text-xs">This is not a medical diagnosis. It's an AI-powered observation to help you understand your emotional state.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
                 {isAnalyzing ? (
                     <div className="flex items-center justify-center h-full">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -193,15 +207,25 @@ export function VideoChatClient() {
                 ) : analysisResult ? (
                   <div className="space-y-4">
                     <div className="glassmorphism p-3 rounded-xl">
-                      <h5 className="font-semibold text-sm mb-2">Detected Mood</h5>
-                      <p className="text-lg font-bold gradient-text">{analysisResult.mood}</p>
+                      <h5 className="font-semibold text-sm mb-2">Overall Mood</h5>
+                      <p className="text-lg font-bold gradient-text">{analysisResult.overallMood}</p>
                     </div>
                     <div className="glassmorphism p-3 rounded-xl">
-                      <h5 className="font-semibold text-sm mb-2">Stress Level</h5>
-                      <p className="font-semibold">{analysisResult.stressLevel}</p>
+                      <h5 className="font-semibold text-sm mb-2">Stress Analysis</h5>
+                      <p className="font-semibold mb-2">Level: {analysisResult.stress.level}</p>
+                      {analysisResult.stress.indicators.length > 0 && <div className="flex flex-wrap gap-1">
+                          {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs">{indicator}</Badge>)}
+                      </div>}
+                    </div>
+                     <div className="glassmorphism p-3 rounded-xl">
+                      <h5 className="font-semibold text-sm mb-2">Anxiety Analysis</h5>
+                      <p className="font-semibold mb-2">Level: {analysisResult.anxiety.level}</p>
+                      {analysisResult.anxiety.indicators.length > 0 && <div className="flex flex-wrap gap-1">
+                          {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs">{indicator}</Badge>)}
+                      </div>}
                     </div>
                     <div className="glassmorphism p-3 rounded-xl">
-                      <h5 className="font-semibold text-sm mb-2">Summary</h5>
+                      <h5 className="font-semibold text-sm mb-2">Empathetic Summary</h5>
                       <p className="text-sm text-foreground/80">{analysisResult.summary}</p>
                     </div>
                   </div>
