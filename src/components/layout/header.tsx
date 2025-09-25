@@ -30,9 +30,9 @@ export function Header() {
           </div>
           <span className="gradient-text font-bold text-xl font-headline hidden sm:inline">Kai Wellness</span>
         </Link>
-        <nav className="hidden md:flex space-x-6 items-center">
+        <nav className="hidden md:flex space-x-2 items-center">
           {navLinks.map((link) => (
-            <Button key={link.href} variant="link" asChild className="text-foreground/80 hover:text-primary transition-colors text-base p-0">
+            <Button key={link.href} variant="ghost" asChild className="text-foreground/80 hover:text-primary hover:bg-accent/50 transition-colors text-base px-3 py-2">
               <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
