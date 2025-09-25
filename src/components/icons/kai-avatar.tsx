@@ -22,18 +22,6 @@ export function KaiAvatar(props: SVGProps<SVGSVGElement>) {
       <path d="M8.5,10.5a.5.5,0,1,1-.5-.5A.5.5,0,0,1,8.5,10.5Z" />
       <path d="M12 13a1 1 0 0 1-.71-.29 1 1 0 0 1 0-1.42 1 1 0 0 1 1.42 0 1 1 0 0 1 0 1.42A1 1 0 0 1 12 13Z" />
       <path d="M9.5,16A2.5,2.5,0,0,0,12,18.5,2.5,2.5,0,0,0,14.5,16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      
-      {/* Hands */}
-      <path
-        d="M5.5,18a2.5,2.5,0,0,0,0-5,2.5,2.5,0,0,0-2,4Z"
-        fill="currentColor"
-        opacity="0.8"
-      />
-      <path
-        d="M18.5,18a2.5,2.5,0,0,1,0-5,2.5,2.5,0,0,1,2,4Z"
-        fill="currentColor"
-        opacity="0.8"
-      />
     </svg>
   );
 }
