@@ -176,8 +176,8 @@ export function VideoChatClient() {
             </div>
         </div>
       
-        <div className="flex-1 flex overflow-hidden">
-            <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="flex-1 flex flex-col overflow-y-auto">
+            <div className="flex-1 flex flex-col items-center justify-start p-4">
                 <div className="w-full max-w-2xl space-y-4">
                     <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden shadow-lg border border-white/20">
                         <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
@@ -217,8 +217,8 @@ export function VideoChatClient() {
                 </div>
             </div>
 
-            <div className="w-96 border-l border-border p-4 space-y-4 hidden md:block shrink-0 overflow-y-auto">
-                <div className="flex justify-between items-center">
+            <div className="p-4 space-y-4">
+                <div className="flex justify-between items-center max-w-4xl mx-auto w-full">
                     <h4 className="font-semibold font-headline">Analysis Report</h4>
                     <TooltipProvider>
                         <Tooltip>
@@ -231,72 +231,77 @@ export function VideoChatClient() {
                         </Tooltip>
                     </TooltipProvider>
                 </div>
-                {isAnalyzing ? (
-                    <div className="flex items-center justify-center h-full">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                ) : analysisResult ? (
-                  <div className="space-y-4">
-                    <div className="glassmorphism p-4 rounded-xl text-center">
-                      <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
-                      <div className="flex justify-center items-center gap-3">
-                          {moodIcons[analysisResult.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
-                          <p className="text-2xl font-bold gradient-text">{analysisResult.overallMood}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="glassmorphism p-4 rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Brain className="w-5 h-5 text-red-500" />
-                        <h5 className="font-semibold text-sm">Stress Analysis</h5>
-                      </div>
-                      <div className="flex justify-between items-baseline mb-2">
-                        <span className="text-sm text-foreground/80">Detected Level:</span>
-                        <p className={cn("text-lg font-bold", levelColors[analysisResult.stress.level] || 'text-foreground')}>{analysisResult.stress.level}</p>
-                      </div>
-                      {analysisResult.stress.indicators.length > 0 && (
-                          <div>
-                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                            <div className="flex flex-wrap gap-1.5">
-                                {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300">{indicator}</Badge>)}
-                            </div>
-                          </div>
-                      )}
-                    </div>
-
-                     <div className="glassmorphism p-4 rounded-xl">
-                      <div className="flex items-center gap-2 mb-3">
-                        <HeartPulse className="w-5 h-5 text-orange-500" />
-                        <h5 className="font-semibold text-sm">Anxiety Analysis</h5>
-                      </div>
-                      <div className="flex justify-between items-baseline mb-2">
-                        <span className="text-sm text-foreground/80">Detected Level:</span>
-                        <p className={cn("text-lg font-bold", levelColors[analysisResult.anxiety.level] || 'text-foreground')}>{analysisResult.anxiety.level}</p>
-                      </div>
-                      {analysisResult.anxiety.indicators.length > 0 && (
-                        <div>
-                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                            <div className="flex flex-wrap gap-1.5">
-                                {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-300">{indicator}</Badge>)}
-                            </div>
+                <div className="max-w-4xl mx-auto w-full">
+                    {isAnalyzing ? (
+                        <div className="flex items-center justify-center h-48">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                         </div>
-                      )}
-                    </div>
+                    ) : analysisResult ? (
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="glassmorphism p-4 rounded-xl text-center lg:col-span-1">
+                          <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
+                          <div className="flex justify-center items-center gap-3">
+                              {moodIcons[analysisResult.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
+                              <p className="text-2xl font-bold gradient-text">{analysisResult.overallMood}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="glassmorphism p-4 rounded-xl lg:col-span-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Brain className="w-5 h-5 text-red-500" />
+                                    <h5 className="font-semibold text-sm">Stress Analysis</h5>
+                                  </div>
+                                  <div className="flex justify-between items-baseline mb-2">
+                                    <span className="text-sm text-foreground/80">Detected Level:</span>
+                                    <p className={cn("text-lg font-bold", levelColors[analysisResult.stress.level] || 'text-foreground')}>{analysisResult.stress.level}</p>
+                                  </div>
+                                  {analysisResult.stress.indicators.length > 0 && (
+                                      <div>
+                                        <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300">{indicator}</Badge>)}
+                                        </div>
+                                      </div>
+                                  )}
+                              </div>
+                              <div>
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <HeartPulse className="w-5 h-5 text-orange-500" />
+                                    <h5 className="font-semibold text-sm">Anxiety Analysis</h5>
+                                  </div>
+                                  <div className="flex justify-between items-baseline mb-2">
+                                    <span className="text-sm text-foreground/80">Detected Level:</span>
+                                    <p className={cn("text-lg font-bold", levelColors[analysisResult.anxiety.level] || 'text-foreground')}>{analysisResult.anxiety.level}</p>
+                                  </div>
+                                  {analysisResult.anxiety.indicators.length > 0 && (
+                                    <div>
+                                        <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-300">{indicator}</Badge>)}
+                                        </div>
+                                    </div>
+                                  )}
+                              </div>
+                          </div>
+                        </div>
 
-                    <div className="glassmorphism p-4 rounded-xl bg-primary/5">
-                      <h5 className="font-semibold text-sm mb-2 text-primary">Kai's Empathetic Summary</h5>
-                      <p className="text-sm text-foreground/80 italic">"{analysisResult.summary}"</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center p-6">
-                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                        <Brain className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm font-medium">Your report will appear here</p>
-                    <p className="text-xs text-muted-foreground/80">Start a 5-second video analysis to see your emotional insights.</p>
-                  </div>
-                )}
+                        <div className="glassmorphism p-4 rounded-xl bg-primary/5 lg:col-span-3">
+                          <h5 className="font-semibold text-sm mb-2 text-primary">Kai's Empathetic Summary</h5>
+                          <p className="text-sm text-foreground/80 italic">"{analysisResult.summary}"</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center text-muted-foreground h-48 flex flex-col justify-center items-center p-6 border-2 border-dashed rounded-2xl">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                            <Brain className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium">Your report will appear here</p>
+                        <p className="text-xs text-muted-foreground/80">Start a 5-second video analysis to see your emotional insights.</p>
+                      </div>
+                    )}
+                </div>
             </div>
         </div>
     </div>
