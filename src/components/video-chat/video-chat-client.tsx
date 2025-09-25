@@ -33,6 +33,7 @@ export function VideoChatClient() {
   const [isRecording, setIsRecording] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<VideoAnalysisOutput | null>(null);
+  const [countdown, setCountdown] = useState(5);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -54,6 +55,23 @@ export function VideoChatClient() {
     };
     getCameraPermission();
   }, []);
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+    if (isRecording) {
+      setCountdown(5);
+      countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(countdownInterval);
+  }, [isRecording]);
 
   const startVideo = async (): Promise<MediaStream | null> => {
     if (hasCameraPermission === false) {
@@ -171,7 +189,7 @@ export function VideoChatClient() {
                         {isRecording && (
                           <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1 rounded-full text-sm">
                             <span className="w-3 h-3 bg-white rounded-full animate-pulse"></span>
-                            Recording... 5s
+                            Recording... {countdown > 0 ? `${countdown}s` : 'Processing...'}
                           </div>
                         )}
                     </div>
