@@ -32,7 +32,7 @@ export function Header() {
         </Link>
         <nav className="hidden md:flex space-x-2 items-center">
           {navLinks.map((link) => (
-            <Button key={link.href} variant="ghost" asChild className="text-foreground/80 hover:text-primary hover:bg-accent/50 transition-colors text-base px-3 py-2">
+            <Button key={link.href} variant="ghost" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-colors text-base px-3 py-2 font-medium">
               <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
