@@ -49,7 +49,7 @@ export function LoginClient() {
   }
 
   return (
-    <>
+    <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
       <div className="glassmorphism rounded-2xl p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl border border-white/20">
@@ -101,7 +101,7 @@ export function LoginClient() {
           <p className="text-sm text-muted-foreground">
             Don't have an account?{' '}
             <DialogTrigger asChild>
-               <Button variant="link" className="p-0 h-auto font-medium text-primary" onClick={() => setIsSignupOpen(true)}>Sign up</Button>
+               <Button variant="link" className="p-0 h-auto font-medium text-primary">Sign up</Button>
             </DialogTrigger>
           </p>
         </div>
@@ -114,56 +114,54 @@ export function LoginClient() {
         </div>
       </div>
 
-      <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
-        <DialogContent className="glassmorphism max-w-md w-full rounded-2xl p-8">
-          <DialogHeader>
-            <DialogTitle className="gradient-text text-2xl font-bold font-headline">Create Account</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSignUp} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="first-name">First Name</Label>
-                <Input id="first-name" required placeholder="John" className="mt-1 bg-background/50" />
-              </div>
-              <div>
-                <Label htmlFor="last-name">Last Name</Label>
-                <Input id="last-name" required placeholder="Doe" className="mt-1 bg-background/50" />
-              </div>
+      <DialogContent className="glassmorphism max-w-md w-full rounded-2xl p-8">
+        <DialogHeader>
+          <DialogTitle className="gradient-text text-2xl font-bold font-headline">Create Account</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSignUp} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="first-name">First Name</Label>
+              <Input id="first-name" required placeholder="John" className="mt-1 bg-background/50" />
             </div>
             <div>
-              <Label htmlFor="signup-email">Email</Label>
-              <Input id="signup-email" type="email" required placeholder="john@example.com" className="mt-1 bg-background/50" />
+              <Label htmlFor="last-name">Last Name</Label>
+              <Input id="last-name" required placeholder="Doe" className="mt-1 bg-background/50" />
             </div>
-            <div>
-              <Label htmlFor="signup-password">Password</Label>
-              <Input id="signup-password" type="password" required placeholder="Create a strong password" className="mt-1 bg-background/50" />
-            </div>
-            <div>
-              <Label>Student Status</Label>
-              <Select>
-                <SelectTrigger className="w-full mt-1 bg-background/50">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="undergraduate">Undergraduate</SelectItem>
-                  <SelectItem value="graduate">Graduate</SelectItem>
-                  <SelectItem value="phd">PhD</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-start space-x-2 pt-2">
-              <Checkbox id="terms" required />
-              <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
-                I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-              </Label>
-            </div>
-            <Button type="submit" disabled={isSignupLoading} className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold">
-              {isSignupLoading ? 'Creating Account...' : 'Create Account'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+          </div>
+          <div>
+            <Label htmlFor="signup-email">Email</Label>
+            <Input id="signup-email" type="email" required placeholder="john@example.com" className="mt-1 bg-background/50" />
+          </div>
+          <div>
+            <Label htmlFor="signup-password">Password</Label>
+            <Input id="signup-password" type="password" required placeholder="Create a strong password" className="mt-1 bg-background/50" />
+          </div>
+          <div>
+            <Label>Student Status</Label>
+            <Select>
+              <SelectTrigger className="w-full mt-1 bg-background/50">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undergraduate">Undergraduate</SelectItem>
+                <SelectItem value="graduate">Graduate</SelectItem>
+                <SelectItem value="phd">PhD</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-start space-x-2 pt-2">
+            <Checkbox id="terms" required />
+            <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
+              I agree to the <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>
+            </Label>
+          </div>
+          <Button type="submit" disabled={isSignupLoading} className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold">
+            {isSignupLoading ? 'Creating Account...' : 'Create Account'}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
