@@ -14,14 +14,13 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 
-// IMPORTANT: Replace this with your actual Firebase config
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  "projectId": "studio-5455551154-a5d2e",
+  "appId": "1:901983621273:web:852f22e2b3921e03dc2808",
+  "apiKey": "AIzaSyAMn8ElSQn1Zbu6bY2vJNdck8VnBH2Og4c",
+  "authDomain": "studio-5455551154-a5d2e.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "901983621273"
 };
 
 let firebaseApp: FirebaseApp;
