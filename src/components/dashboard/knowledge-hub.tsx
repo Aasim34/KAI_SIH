@@ -103,17 +103,17 @@ export function KnowledgeHub() {
         <div>
             <h3 className="text-xl font-bold mb-4 font-headline">Journals & Knowledge Hub</h3>
             <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <button onClick={() => showArticle('student-peer-tips')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-colors w-full">
+                <button onClick={() => showArticle('student-peer-tips')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-all transform hover:scale-105 w-full">
                     <div className="text-2xl mb-2">👨‍🎓</div>
                     <h4 className="font-semibold mb-2 font-headline">Students</h4>
                     <p className="text-sm text-foreground/70 dark:text-foreground/60">Peer experiences and tips</p>
                 </button>
-                <button onClick={() => showArticle('researcher-insights')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-colors w-full">
+                <button onClick={() => showArticle('researcher-insights')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-all transform hover:scale-105 w-full">
                     <div className="text-2xl mb-2">🔬</div>
                     <h4 className="font-semibold mb-2 font-headline">Researchers</h4>
                     <p className="text-sm text-foreground/70 dark:text-foreground/60">Evidence-based insights</p>
                 </button>
-                <button onClick={() => showArticle('public-users-stories')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-colors w-full">
+                <button onClick={() => showArticle('public-users-stories')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-all transform hover:scale-105 w-full">
                     <div className="text-2xl mb-2">🌍</div>
                     <h4 className="font-semibold mb-2 font-headline">Public Users</h4>
                     <p className="text-sm text-foreground/70 dark:text-foreground/60">Community wellness stories</p>
