@@ -44,7 +44,7 @@ export async function getKaiResponse(input: { message: string; mood?: string }) 
     let responseText = aiResponse.responseText;
 
     if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
-        responseText += `\n\nHere are a few things that might help:\n- ${aiResponse.recommendations.join('\n- ')}\n\nWould you like to try one of these?`;
+        responseText += `\n\nHere are a few things that might help:\n- ${aiResponse.recommendations.join('\n- ')}`;
     }
 
     return { success: true, response: responseText };
