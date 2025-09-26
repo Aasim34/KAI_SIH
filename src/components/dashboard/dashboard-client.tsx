@@ -7,7 +7,7 @@ import { OverviewTab } from "./overview-tab";
 import { ActivitiesTab } from "./activities-tab";
 import { GroveTab } from "./grove-tab";
 import { InsightsTab } from "./insights-tab";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 const quickStats = [
     { label: "Streak Days", value: "7" },
@@ -18,12 +18,7 @@ const quickStats = [
 
 export function DashboardClient() {
     const router = useRouter();
-    const { toast } = useToast();
-
-    const handleSignOut = () => {
-        toast({ title: "Signed Out", description: "You have been successfully signed out." });
-        router.push('/');
-    };
+    const { logout } = useAuth();
 
     return (
         <div>
@@ -37,7 +32,7 @@ export function DashboardClient() {
                         <Button onClick={() => router.push('/chat')} className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg transition-all">
                             Chat with Kai
                         </Button>
-                        <Button variant="outline" onClick={handleSignOut} className="bg-background/50">
+                        <Button variant="outline" onClick={logout} className="bg-background/50">
                             Sign Out
                         </Button>
                     </div>

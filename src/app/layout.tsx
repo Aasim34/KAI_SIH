@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { FloatingOrbs } from '@/components/layout/floating-orbs';
+import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
   title: 'Kai Wellness Companion',
@@ -25,10 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased gradient-bg">
-        <FloatingOrbs />
-        <Header />
-        <main className="relative z-10">{children}</main>
-        <Toaster />
+        <AuthProvider>
+          <FloatingOrbs />
+          <Header />
+          <main className="relative z-10">{children}</main>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
