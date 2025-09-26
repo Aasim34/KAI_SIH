@@ -122,12 +122,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [router, auth]);
 
-  if (isLoading) {
-    return null; // Or a loading spinner
-  }
+  const value = { isAuthenticated, user, isLoading, signup, login, logout };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, signup, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
