@@ -5,10 +5,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-const hubCategories = [
-    { icon: '🌍', title: 'Public Users', description: 'Community wellness stories' },
-];
-
 const articles = {
     'exam-anxiety': {
         title: "Managing Exam Anxiety: A Student's Guide",
@@ -71,6 +67,24 @@ const articles = {
             <h4 class="font-bold text-lg mb-2">Current trends:</h4>
             <p class="mb-4">Researchers are focusing more on digital mental health tools and AI-driven support systems to make help accessible for students and the general public.</p>
             `
+    },
+    'public-users-stories': {
+        title: "Public Users – Community wellness stories",
+        description: "Shared experiences and simple practices for community healing.",
+        content: `
+            <h4 class="font-bold text-lg mb-2">Shared experiences</h4>
+            <p class="mb-4">Many people openly talk about their mental health journeys — dealing with anxiety, seeking therapy, or trying natural stress-management techniques.</p>
+            <h4 class="font-bold text-lg mb-2">Community healing:</h4>
+             <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>Support groups and community circles create safe spaces to share struggles.</li>
+                <li>Personal wellness stories inspire others to seek help and take care of themselves.</li>
+            </ul>
+            <h4 class="font-bold text-lg mb-2">Simple practices:</h4>
+            <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>Keep a gratitude journal (write 3 things daily you’re thankful for).</li>
+                <li>Stay socially connected — quality time with friends/family reduces stress.</li>
+                <li>Try a digital detox — spending a few hours without screens clears the mind.</li>
+            </ul>`
     }
 };
 
@@ -99,13 +113,11 @@ export function KnowledgeHub() {
                     <h4 className="font-semibold mb-2 font-headline">Researchers</h4>
                     <p className="text-sm text-foreground/70 dark:text-foreground/60">Evidence-based insights</p>
                 </button>
-                {hubCategories.map(cat => (
-                    <div key={cat.title} className="glassmorphism p-4 rounded-xl text-center">
-                        <div className="text-2xl mb-2">{cat.icon}</div>
-                        <h4 className="font-semibold mb-2 font-headline">{cat.title}</h4>
-                        <p className="text-sm text-foreground/70 dark:text-foreground/60">{cat.description}</p>
-                    </div>
-                ))}
+                <button onClick={() => showArticle('public-users-stories')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-colors w-full">
+                    <div className="text-2xl mb-2">🌍</div>
+                    <h4 className="font-semibold mb-2 font-headline">Public Users</h4>
+                    <p className="text-sm text-foreground/70 dark:text-foreground/60">Community wellness stories</p>
+                </button>
             </div>
             <div className="space-y-3">
                 <div className="glassmorphism p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
