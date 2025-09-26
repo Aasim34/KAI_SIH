@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, Loader2, Play, Square, Brain, HeartPulse, Info, Smile, Frown, Meh } from 'lucide-react';
+import { Mic, Loader2, Play, Square, Brain, HeartPulse, Info, Smile, Frown, Meh, Download } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -11,6 +11,8 @@ import { analyzeVoice, VoiceAnalysisOutput } from '@/ai/flows/voice-analysis-flo
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const moodIcons: { [key: string]: React.ReactNode } = {
   happy: <Smile className="w-6 h-6 text-green-500" />,
@@ -39,6 +41,7 @@ export function VoiceChatClient() {
   const recordedChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const getMicPermission = async () => {
@@ -156,6 +159,48 @@ export function VoiceChatClient() {
     }
   }
 
+  const handleExportPdf = async () => {
+    if (!reportRef.current || !analysisResult) {
+        toast({
+            variant: "destructive",
+            title: "Export Failed",
+            description: "No analysis report to export."
+        });
+        return;
+    }
+
+    try {
+        const canvas = await html2canvas(reportRef.current, { 
+            scale: 2, 
+            useCORS: true,
+            backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#F0F2FF'
+        });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`kai-voice-report-${new Date().toISOString().split('T')[0]}.pdf`);
+
+        toast({
+            title: "Report Exported",
+            description: "Your voice analysis report has been saved as a PDF."
+        });
+
+    } catch (error) {
+        console.error("PDF export failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Export Error",
+            description: "An unexpected error occurred while exporting the PDF."
+        });
+    }
+  };
+
   return (
     <div className="glassmorphism rounded-2xl overflow-hidden h-full flex flex-col">
         <audio ref={audioRef} className="hidden" />
@@ -206,17 +251,25 @@ export function VoiceChatClient() {
             <div className="w-full md:w-96 border-l border-border p-4 space-y-4 shrink-0 overflow-y-auto">
                 <div className="flex justify-between items-center">
                   <h4 className="font-semibold font-headline">Analysis Report</h4>
-                  <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <Info className="w-4 h-4 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="max-w-xs text-xs">This is not a medical diagnosis. It's an AI-powered observation to help you understand your emotional state.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                    <div className='flex items-center gap-2'>
+                        {analysisResult && (
+                            <Button size="sm" variant="outline" onClick={handleExportPdf} className="gap-2">
+                                <Download className="w-4 h-4" /> Export PDF
+                            </Button>
+                        )}
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="w-4 h-4 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="max-w-xs text-xs">This is not a medical diagnosis. It's an AI-powered observation to help you understand your emotional state.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 </div>
+                <div ref={reportRef} className="p-1 bg-transparent">
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -271,8 +324,7 @@ export function VoiceChatClient() {
                           <h5 className="font-semibold text-sm text-primary">Kai's Empathetic Summary</h5>
                           <Button size="icon" variant="ghost" onClick={playAudioResponse} className="text-primary h-8 w-8" disabled={!analysisResult.audioResponse}>
                             <Play className="h-4 w-4" />
-                          </Button>
-                        </div>
+                          </Button>                        </div>
                         <p className="text-sm text-foreground/80 italic">"{analysisResult.analysis.summary}"</p>
                       </div>
                   </div>
@@ -285,6 +337,7 @@ export function VoiceChatClient() {
                     <p className="text-xs text-muted-foreground/80">Press the mic and record up to 10 seconds of audio.</p>
                   </div>
                 )}
+                </div>
             </div>
         </div>
     </div>

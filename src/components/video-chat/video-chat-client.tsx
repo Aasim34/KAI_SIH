@@ -2,13 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse } from 'lucide-react';
+import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { analyzeVideo, VideoAnalysisOutput } from '@/ai/flows/video-analysis-flow';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Badge } from '../ui/badge';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const moodIcons: { [key: string]: React.ReactNode } = {
   happy: <Smile className="w-8 h-8 text-green-500" />,
@@ -38,6 +40,7 @@ export function VideoChatClient() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -184,6 +187,48 @@ export function VideoChatClient() {
       mediaRecorderRef.current?.stop();
     }, 5000);
   };
+  
+  const handleExportPdf = async () => {
+    if (!reportRef.current || !analysisResult) {
+        toast({
+            variant: "destructive",
+            title: "Export Failed",
+            description: "No analysis report to export."
+        });
+        return;
+    }
+
+    try {
+        const canvas = await html2canvas(reportRef.current, { 
+            scale: 2, 
+            useCORS: true,
+            backgroundColor: document.documentElement.classList.contains('dark') ? '#16213e' : '#F0F2FF'
+        });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`kai-video-report-${new Date().toISOString().split('T')[0]}.pdf`);
+
+        toast({
+            title: "Report Exported",
+            description: "Your video analysis report has been saved as a PDF."
+        });
+
+    } catch (error) {
+        console.error("PDF export failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Export Error",
+            description: "An unexpected error occurred while exporting the PDF."
+        });
+    }
+  };
 
   return (
     <div className="glassmorphism rounded-2xl overflow-hidden h-full flex flex-col">
@@ -243,18 +288,25 @@ export function VideoChatClient() {
             <div className="p-4 space-y-4">
                 <div className="flex justify-between items-center max-w-4xl mx-auto w-full">
                     <h4 className="font-semibold font-headline">Analysis Report</h4>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <Info className="w-4 h-4 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="max-w-xs text-xs">This is not a medical diagnosis. It's an AI-powered observation to help you understand your emotional state.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                    <div className='flex items-center gap-2'>
+                        {analysisResult && (
+                             <Button size="sm" variant="outline" onClick={handleExportPdf} className="gap-2">
+                                <Download className="w-4 h-4" /> Export PDF
+                             </Button>
+                        )}
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="w-4 h-4 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="max-w-xs text-xs">This is not a medical diagnosis. It's an AI-powered observation to help you understand your emotional state.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 </div>
-                <div className="max-w-4xl mx-auto w-full">
+                <div ref={reportRef} className="max-w-4xl mx-auto w-full p-4 bg-transparent">
                     {isAnalyzing ? (
                         <div className="flex items-center justify-center h-48">
                             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
