@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -177,30 +178,36 @@ export function VoiceChatClient() {
         const canvas = await html2canvas(reportRef.current, { 
             scale: 2, 
             useCORS: true,
-            backgroundColor: null
+            backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#F0F2FF'
         });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
             orientation: 'portrait',
             unit: 'px',
-            format: [canvas.width, canvas.height + 80] // Add space for header
+            format: 'a4'
         });
 
-        // Add Header
-        pdf.setFillColor(240, 242, 255); // --background HSL
-        if (document.documentElement.classList.contains('dark')) {
-            pdf.setFillColor(22, 33, 62); // dark --background HSL
-        }
-        pdf.rect(0, 0, pdf.internal.pageSize.width, 80, 'F');
-        pdf.setFontSize(20);
-        pdf.setTextColor(79, 70, 229); // --primary HSL
-         if (document.documentElement.classList.contains('dark')) {
-             pdf.setTextColor(165, 180, 252);
-         }
-        pdf.text("Kai Wellness Analysis Report", 20, 45);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const imgWidth = pdfWidth - 40; // with margin
+        const ratio = canvas.width / imgWidth;
+        const imgHeight = canvas.height / ratio;
 
-        pdf.addImage(imgData, 'PNG', 0, 80, canvas.width, canvas.height);
+        let yPos = 20;
+
+        pdf.setFontSize(22);
+        pdf.setTextColor(79, 70, 229);
+        if (document.documentElement.classList.contains('dark')) {
+            pdf.setTextColor(165, 180, 252);
+        }
+        pdf.text("Kai Wellness Report", pdfWidth / 2, yPos, { align: 'center' });
+        yPos += 20;
+
+        pdf.setDrawColor(224, 224, 224);
+        pdf.line(20, yPos, pdfWidth - 20, yPos);
+        yPos += 15;
+        
+        pdf.addImage(imgData, 'PNG', 20, yPos, imgWidth, imgHeight);
         
         pdf.save(`kai-voice-report-${new Date().toISOString().split('T')[0]}.pdf`);
 
@@ -294,7 +301,7 @@ export function VoiceChatClient() {
                   </div>
                 ) : analysisResult ? (
                   <div ref={reportRef} className="bg-gradient-to-br from-white/20 to-transparent dark:from-white/10 dark:to-transparent p-4 rounded-xl border border-white/30 dark:border-white/20 space-y-4">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 pb-4 border-b border-white/30">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 pb-4 border-b border-white/30 dark:border-white/50">
                         <div>
                             <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Name</p>
                             <p className="text-sm font-bold">{user?.name || 'User'}</p>
@@ -304,8 +311,8 @@ export function VoiceChatClient() {
                             <p className="text-sm font-bold">{analysisDate?.toLocaleDateString() || 'N/A'}</p>
                         </div>
                         <div>
-                            <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Type</p>
-                            <p className="text-sm font-bold">Voice Analysis</p>
+                            <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Time</p>
+                            <p className="text-sm font-bold">{analysisDate?.toLocaleTimeString() || 'N/A'}</p>
                         </div>
                     </div>
                     
