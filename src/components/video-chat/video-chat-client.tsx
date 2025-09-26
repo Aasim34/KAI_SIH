@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse, Download, Angry, FileQuestion, Tired, HelpCircle } from 'lucide-react';
+import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse, Download, Angry, FileQuestion, Sofa, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -25,7 +25,7 @@ const emotionIcons: { [key: string]: React.ReactNode } = {
   'Disgusted': <Frown className="w-8 h-8 text-lime-600" />,
   'Neutral': <Meh className="w-8 h-8 text-gray-500" />,
   'Confused': <HelpCircle className="w-8 h-8 text-indigo-500" />,
-  'Tired/Exhausted': <Tired className="w-8 h-8 text-gray-400" />,
+  'Tired/Exhausted': <Sofa className="w-8 h-8 text-gray-400" />,
 };
 
 export function VideoChatClient() {
@@ -414,3 +414,6 @@ export function VideoChatClient() {
     </div>
   );
 }
+
+    
+    
