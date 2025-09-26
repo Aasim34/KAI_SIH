@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/sheet"
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/login', label: 'Login' },
+  { href: '/landing', label: 'Home' },
+  { href: '/', label: 'Login' },
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/chat', label: 'Chat with Kai' },
   { href: '/voice-chat', label: 'Voice Chat' },
@@ -24,7 +24,7 @@ export function Header() {
   return (
     <header className="glassmorphism fixed top-0 w-full z-50 px-4 md:px-6 py-3">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-3">
+        <Link href="/landing" className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
             <Logo className="w-7 h-7 text-white" />
           </div>
