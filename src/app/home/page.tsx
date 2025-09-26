@@ -1,14 +1,32 @@
-
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, Bot, Mic, Video } from 'lucide-react';
+import { ArrowRight, Bot, LayoutDashboard, Mic, Video } from 'lucide-react';
 import Link from 'next/link';
 
 const navOptions = [
-  { href: '/dashboard', title: 'Dashboard', description: 'View your progress and stats', icon: <Bot className="w-6 h-6 text-primary" /> },
-  { href: '/chat', title: 'Chat with Kai', description: 'Talk about what\'s on your mind', icon: <Bot className="w-6 h-6 text-primary" /> },
-  { href: '/voice-chat', title: 'Voice Chat', description: 'Analyze your vocal tone', icon: <Mic className="w-6 h-6 text-primary" /> },
-  { href: '/video-chat', title: 'Video Chat', description: 'Get visual feedback', icon: <Video className="w-6 h-6 text-primary" /> },
+  {
+    href: '/dashboard',
+    title: 'Your Dashboard',
+    description: 'Track your progress, review insights, and manage your wellness journey.',
+    icon: <LayoutDashboard className="w-6 h-6 text-primary" />,
+  },
+  {
+    href: '/chat',
+    title: 'Chat with Kai',
+    description: "Talk about what's on your mind and get empathetic, AI-powered support.",
+    icon: <Bot className="w-6 h-6 text-primary" />,
+  },
+  {
+    href: '/voice-chat',
+    title: 'Voice Check-in',
+    description: 'Analyze your vocal tone for emotional insights and receive verbal feedback from Kai.',
+    icon: <Mic className="w-6 h-6 text-primary" />,
+  },
+  {
+    href: '/video-chat',
+    title: 'Video Analysis',
+    description: 'Record a short video to get visual feedback on your emotional state.',
+    icon: <Video className="w-6 h-6 text-primary" />,
+  },
 ];
 
 export default function HomePage() {
@@ -17,10 +35,10 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h1 className="gradient-text text-4xl md:text-5xl font-bold mb-4 font-headline">
-            Welcome Home
+            Welcome to Kai
           </h1>
-          <p className="text-xl text-foreground/70 dark:text-foreground/60 max-w-2xl mx-auto">
-            Your wellness journey continues here. What would you like to do today?
+          <p className="text-xl text-foreground/70 dark:text-foreground/60 max-w-3xl mx-auto">
+            Your personal AI companion for student wellness. Kai is here to listen, support, and guide you with a friendly ear and evidence-based techniques.
           </p>
         </div>
 
@@ -37,8 +55,8 @@ export default function HomePage() {
                 <CardContent>
                   <p className="text-foreground/70 dark:text-foreground/60">{item.description}</p>
                   <div className="flex items-center text-sm font-semibold text-primary mt-4 group-hover:translate-x-1 transition-transform">
-                      <span>Explore</span>
-                      <ArrowRight className="w-4 h-4 ml-1" />
+                    <span>Explore</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
                   </div>
                 </CardContent>
               </Card>
