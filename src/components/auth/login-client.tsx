@@ -26,7 +26,6 @@ export function LoginClient() {
       if (email === 'user@kai.com' && password === '12345') {
         login();
         toast({ title: "Login Successful", description: "Welcome back!" });
-        router.push('/home');
       } else {
         toast({ variant: "destructive", title: "Login Failed", description: "Invalid email or password." });
       }

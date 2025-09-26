@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = () => {
     localStorage.setItem('isAuthenticated', 'true');
     setIsAuthenticated(true);
-    // The useEffect hook will handle the redirection to '/home'
+    router.push('/home');
   };
 
   const logout = () => {
