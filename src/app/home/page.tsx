@@ -3,6 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, Bot, LayoutDashboard, Mic, Video } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const navOptions = [
   {
@@ -32,6 +34,17 @@ const navOptions = [
 ];
 
 export default function HomePage() {
+  const [visibleCards, setVisibleCards] = useState<number[]>([]);
+
+  useEffect(() => {
+    const timers = navOptions.map((_, index) => 
+      setTimeout(() => {
+        setVisibleCards(prev => [...prev, index]);
+      }, index * 150)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
   return (
     <div className="pt-24 pb-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -45,9 +58,18 @@ export default function HomePage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6" style={{ perspective: '1000px' }}>
-          {navOptions.map(item => (
+          {navOptions.map((item, index) => (
             <Link href={item.href} key={item.href} className="group">
-              <Card className="glassmorphism h-full hover:border-primary/50 transition-all transform hover:[transform:rotateY(-5deg)_rotateX(10deg)_scale(1.05)] duration-300">
+              <Card 
+                className={cn(
+                  "glassmorphism h-full hover:border-primary/50 transition-all transform hover:[transform:rotateY(-5deg)_rotateX(10deg)_scale(1.05)] duration-300 opacity-0",
+                  {
+                    'animate-slide-in-from-left': visibleCards.includes(index) && index % 2 === 0,
+                    'animate-slide-in-from-right': visibleCards.includes(index) && index % 2 !== 0,
+                  }
+                )}
+                style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+              >
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-xl font-bold font-headline">{item.title}</CardTitle>
                   <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
