@@ -62,7 +62,7 @@ const prompt = videoAi.definePrompt({
   name: 'videoAnalysisPrompt',
   input: {schema: VideoAnalysisInputSchema},
   output: {schema: VideoAnalysisOutputSchema},
-  model: 'googleai/gemini-pro-vision',
+  model: 'googleai/gemini-2.5-flash',
   prompt: `You are a professional facial emotion recognition system.  
 Your task is to analyze the provided human face and detect the emotional state with accuracy.  
 Classify the emotions into the following categories:  
@@ -106,7 +106,7 @@ const videoAnalysisFlow = videoAi.defineFlow(
     name: 'videoAnalysisFlow',
     inputSchema: VideoAnalysisInputSchema,
     outputSchema: VideoAnalysisOutputSchema,
-    model: 'googleai/gemini-pro-vision',
+    model: 'googleai/gemini-2.5-flash',
   },
   async input => {
     const {output} = await prompt(input);
