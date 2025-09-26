@@ -13,6 +13,7 @@ const hubCategories = [
 const articles = {
     'exam-anxiety': {
         title: "Managing Exam Anxiety: A Student's Guide",
+        description: "A comprehensive guide to understanding and managing exam-related stress.",
         content: `
             <h4 class="font-bold text-lg mb-2">Understanding Exam Anxiety</h4>
             <p class="mb-4">Exam anxiety is a common experience that affects many students. It's characterized by feelings of worry, fear, and physical symptoms before or during exams.</p>
@@ -26,6 +27,7 @@ const articles = {
     },
     'breathing-science': {
         title: "The Science of Breathing Exercises",
+        description: "Explore the research-backed benefits of mindful breathing for stress reduction.",
         content: `
             <h4 class="font-bold text-lg mb-2">How Breathing Affects Your Brain</h4>
             <p class="mb-4">Deep breathing activates the parasympathetic nervous system, which promotes relaxation and reduces stress hormones like cortisol.</p>
@@ -82,9 +84,12 @@ export function KnowledgeHub() {
                 <DialogContent className="glassmorphism max-w-2xl w-full max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold font-headline">{currentArticle && articles[currentArticle].title}</DialogTitle>
+                        <DialogDescription>
+                            {currentArticle && articles[currentArticle].description}
+                        </DialogDescription>
                     </DialogHeader>
                     <div
-                        className="prose prose-sm dark:prose-invert max-w-none text-foreground/80 dark:text-foreground/70"
+                        className="prose prose-sm dark:prose-invert max-w-none text-foreground/80 dark:text-foreground/70 pt-4"
                         dangerouslySetInnerHTML={{ __html: currentArticle ? articles[currentArticle].content : '' }}
                     />
                 </DialogContent>
