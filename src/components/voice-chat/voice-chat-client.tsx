@@ -31,7 +31,7 @@ export function VoiceChatClient() {
   const { toast } = useToast();
   const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(isAnalyzing);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<VoiceAnalysisOutput | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
 
