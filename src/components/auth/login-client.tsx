@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from 'react';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '../icons/logo';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { Loader2 } from 'lucide-react';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -62,15 +64,18 @@ export function LoginClient() {
   const handleGoogleAuth = async () => {
     setIsActionLoading(true);
     const result = await loginWithGoogle();
-    setIsActionLoading(false);
-
-    if (!result.success) {
+    
+    // With redirect, this part might not be reached if the redirect is successful.
+    // It's here to catch immediate errors.
+    if (result && !result.success) {
+      setIsActionLoading(false);
       toast({
         variant: 'destructive',
         title: 'Google Sign-In Failed',
         description: result.message,
       });
     }
+    // No need to set isActionLoading to false if redirecting, as the page will change.
   }
 
   const toggleMode = () => {
@@ -80,7 +85,18 @@ export function LoginClient() {
     setPassword('');
   }
   
+  // isAuthLoading now also represents the loading state after a redirect
   const isLoading = isAuthLoading || isActionLoading;
+
+  if (isAuthLoading) {
+    return (
+       <div className="glassmorphism rounded-2xl p-8 flex flex-col items-center justify-center h-96">
+            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+            <p className="mt-4 text-foreground/70 dark:text-foreground/60">Checking authentication...</p>
+       </div>
+    );
+  }
+
 
   return (
     <div className="glassmorphism rounded-2xl p-8">
@@ -135,7 +151,7 @@ export function LoginClient() {
           />
         </div>
         <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:shadow-lg transition-all transform hover:scale-105">
-          {isLoading && mode === 'signin' ? 'Signing in...' : isLoading && mode === 'signup' ? 'Creating account...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
+          {isLoading ? <Loader2 className="animate-spin" /> : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
         </Button>
       </form>
       
@@ -151,8 +167,8 @@ export function LoginClient() {
         </div>
 
       <Button variant="outline" className="w-full bg-background/50" onClick={handleGoogleAuth} disabled={isLoading}>
-        <GoogleIcon className="mr-2 h-5 w-5" />
-        Sign in with Google
+        {isActionLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin"/> : <GoogleIcon className="mr-2 h-5 w-5" />}
+        {isActionLoading ? 'Redirecting...' : 'Sign in with Google'}
       </Button>
 
       <div className="mt-6 text-center">

@@ -13,6 +13,8 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   User as FirebaseUser,
   Auth
 } from 'firebase/auth';
@@ -42,7 +44,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
-  loginWithGoogle: () => Promise<AuthResult>;
+  loginWithGoogle: () => Promise<AuthResult | void>;
   logout: () => void;
 }
 
@@ -70,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuth(authInstance);
 
     const unsubscribe = onAuthStateChanged(authInstance, (firebaseUser) => {
+      setIsLoading(true);
       if (firebaseUser) {
         setUser({ name: firebaseUser.displayName, email: firebaseUser.email });
       } else {
@@ -77,6 +80,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setIsLoading(false);
     });
+
+    getRedirectResult(authInstance).then((result) => {
+      setIsLoading(true);
+      if (result && result.user) {
+        setUser({ name: result.user.displayName, email: result.user.email });
+      }
+      setIsLoading(false);
+    }).catch(error => {
+        console.error("Error with getRedirectResult:", error);
+        setIsLoading(false);
+    });
+
     return () => unsubscribe();
   }, []);
 
@@ -119,18 +134,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [auth]);
   
-  const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
+  const loginWithGoogle = useCallback(async (): Promise<AuthResult | void> => {
     if (!auth) return { success: false, message: "Authentication not ready." };
     const provider = new GoogleAuthProvider();
-    try {
-        const userCredential = await signInWithPopup(auth, provider);
-        setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
-        return { success: true, message: "Signed in with Google successfully!" };
-    } catch (error: any) {
-        if (error.code === 'auth/popup-closed-by-user') {
-          return { success: false, message: 'Sign-in cancelled.' };
+    
+    // For mobile devices, or browsers that block popups, redirect is better.
+    const isMobile = /Mobi/i.test(window.navigator.userAgent);
+
+    if (isMobile) {
+        try {
+            await signInWithRedirect(auth, provider);
+            // The page will redirect, so no need to return anything here.
+            // The result is handled by `getRedirectResult` in the `useEffect` hook.
+        } catch (error: any) {
+            console.error("Google Sign-In with redirect error:", error);
+            return { success: false, message: error.message || "Google Sign-In failed." };
         }
-        return { success: false, message: error.message || "Google Sign-In failed." };
+    } else {
+        try {
+            const userCredential = await signInWithPopup(auth, provider);
+            setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
+            return { success: true, message: "Signed in with Google successfully!" };
+        } catch (error: any) {
+            if (error.code === 'auth/popup-closed-by-user') {
+              return { success: false, message: 'Sign-in cancelled.' };
+            }
+            return { success: false, message: error.message || "Google Sign-In failed." };
+        }
     }
   }, [auth]);
 
@@ -138,12 +168,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth) return;
     try {
       await signOut(auth);
-      // The onAuthStateChanged listener will handle setting user to null
-      // and the other useEffect will handle redirection.
+      router.push('/');
     } catch (error) {
       console.error("Error signing out:", error);
     }
-  }, [auth]);
+  }, [auth, router]);
 
   const value = { isAuthenticated, user, isLoading, signup, login, loginWithGoogle, logout };
 
