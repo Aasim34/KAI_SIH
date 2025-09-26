@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Logo } from '../icons/logo';
 import { Separator } from '../ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -117,6 +117,9 @@ export function LoginClient() {
       <DialogContent className="glassmorphism max-w-md w-full rounded-2xl p-8">
         <DialogHeader>
           <DialogTitle className="gradient-text text-2xl font-bold font-headline">Create Account</DialogTitle>
+          <DialogDescription>
+            Join Kai Wellness to start your personalized wellness journey.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSignUp} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -125,8 +128,7 @@ export function LoginClient() {
               <Input id="first-name" required placeholder="John" className="mt-1 bg-background/50" />
             </div>
             <div>
-              <Label htmlFor="last-name">Last Name</Label>
-              <Input id="last-name" required placeholder="Doe" className="mt-1 bg-background/50" />
+              <Label htmlFor="last-name">Last Name</Label>              <Input id="last-name" required placeholder="Doe" className="mt-1 bg-background/50" />
             </div>
           </div>
           <div>
