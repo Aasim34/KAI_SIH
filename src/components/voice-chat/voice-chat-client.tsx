@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -30,7 +31,7 @@ export function VoiceChatClient() {
   const { toast } = useToast();
   const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(isAnalyzing);
   const [analysisResult, setAnalysisResult] = useState<VoiceAnalysisOutput | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
 
@@ -68,6 +69,14 @@ export function VoiceChatClient() {
     };
     getMicPermission();
   }, [toast]);
+  
+  useEffect(() => {
+    if (analysisResult?.audioResponse && audioRef.current) {
+      audioRef.current.src = analysisResult.audioResponse;
+      audioRef.current.play().catch(e => console.error("Audio play failed", e));
+    }
+  }, [analysisResult]);
+
 
   const startRecording = async () => {
     if (isRecording || hasMicPermission === false) return;
@@ -102,9 +111,6 @@ export function VoiceChatClient() {
         try {
           const result = await analyzeVoice({ audioDataUri: base64data });
           setAnalysisResult(result);
-          if (audioRef.current && result.audioResponse) {
-            audioRef.current.src = result.audioResponse;
-          }
         } catch (error) {
           console.error("Analysis failed:", error);
           toast({
@@ -152,6 +158,7 @@ export function VoiceChatClient() {
 
   return (
     <div className="glassmorphism rounded-2xl overflow-hidden h-full flex flex-col">
+        <audio ref={audioRef} className="hidden" />
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -268,7 +275,6 @@ export function VoiceChatClient() {
                         </div>
                         <p className="text-sm text-foreground/80 italic">"{analysisResult.analysis.summary}"</p>
                       </div>
-                      <audio ref={audioRef} className="hidden" />
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center p-6 border-2 border-dashed rounded-2xl">
@@ -284,3 +290,5 @@ export function VoiceChatClient() {
     </div>
   );
 }
+
+    
