@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const hubCategories = [
-    { icon: '🔬', title: 'Researchers', description: 'Evidence-based insights' },
     { icon: '🌍', title: 'Public Users', description: 'Community wellness stories' },
 ];
 
@@ -51,6 +51,26 @@ const articles = {
                 <li>Stay active with sports, walking, or yoga to release tension.</li>
                 <li>Practice self-compassion — mistakes are part of learning, not failure.</li>
             </ul>`
+    },
+    'researcher-insights': {
+        title: "Researchers – Evidence-based insights",
+        description: "Understand the science behind student mental wellness.",
+        content: `
+            <h4 class="font-bold text-lg mb-2">Prevalence</h4>
+            <p class="mb-4">According to WHO, anxiety and depression are the most common mental health issues worldwide, especially among people aged 15–29.</p>
+            <h4 class="font-bold text-lg mb-2">Causes:</h4>
+            <ul class="list-disc list-inside space-y-1 mb-4">
+                <li><strong>Biological factors:</strong> genetics, chemical imbalances in the brain.</li>
+                <li><strong>Environmental factors:</strong> family stress, financial pressure, social isolation.</li>
+            </ul>
+            <h4 class="font-bold text-lg mb-2">Evidence-based solutions:</h4>
+             <ul class="list-disc list-inside space-y-1 mb-4">
+                <li>Cognitive Behavioral Therapy (CBT) and mindfulness have strong scientific backing for reducing stress and anxiety.</li>
+                <li>Good sleep habits and regular exercise lower stress hormones.</li>
+            </ul>
+            <h4 class="font-bold text-lg mb-2">Current trends:</h4>
+            <p class="mb-4">Researchers are focusing more on digital mental health tools and AI-driven support systems to make help accessible for students and the general public.</p>
+            `
     }
 };
 
@@ -73,6 +93,11 @@ export function KnowledgeHub() {
                     <div className="text-2xl mb-2">👨‍🎓</div>
                     <h4 className="font-semibold mb-2 font-headline">Students</h4>
                     <p className="text-sm text-foreground/70 dark:text-foreground/60">Peer experiences and tips</p>
+                </button>
+                <button onClick={() => showArticle('researcher-insights')} className="glassmorphism p-4 rounded-xl text-center hover:border-primary/50 transition-colors w-full">
+                    <div className="text-2xl mb-2">🔬</div>
+                    <h4 className="font-semibold mb-2 font-headline">Researchers</h4>
+                    <p className="text-sm text-foreground/70 dark:text-foreground/60">Evidence-based insights</p>
                 </button>
                 {hubCategories.map(cat => (
                     <div key={cat.title} className="glassmorphism p-4 rounded-xl text-center">
