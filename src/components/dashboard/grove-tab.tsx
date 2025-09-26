@@ -2,9 +2,6 @@
 "use client";
 
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Pause, Play } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
 
 const gardenStages = [
     { icon: '🌱', name: 'Seedling', unlocked: true },
@@ -18,33 +15,6 @@ const gardenStages = [
 const audioSrc = "https://drive.google.com/uc?export=download&id=1GslP_W98m9hLJ_1DUMhtzPJp8W1KLfxx"; 
 
 export function GroveTab() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    // Create the audio element on the client side
-    audioRef.current = new Audio(audioSrc);
-    audioRef.current.loop = true;
-
-    // Cleanup on unmount
-    return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
-    };
-  }, []);
-
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch(e => console.error("Audio play failed:", e));
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-
   return (
     <div className="space-y-8">
         <h3 className="text-xl font-bold font-headline">Your Mindful Grove</h3>
@@ -67,14 +37,16 @@ export function GroveTab() {
         <div className="glassmorphism p-6 rounded-xl">
             <h4 className="font-semibold mb-4 font-headline">🎵 Music Mood Lift</h4>
             <div className="flex items-center gap-4">
-                <Button size="icon" onClick={togglePlayPause} className="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full w-12 h-12">
-                    {isPlaying ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white" />}
-                </Button>
                 <div className="flex-1">
                     <div className="font-semibold font-headline">Lofi Chill</div>
                     <div className="text-sm text-foreground/70 dark:text-foreground/60">Relaxing instrumental music</div>
                 </div>
-                <div className="text-sm text-foreground/70 dark:text-foreground/60">Looping</div>
+            </div>
+            <div className="mt-4">
+                <audio controls className="w-full">
+                  <source src={audioSrc} type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
             </div>
         </div>
     </div>
