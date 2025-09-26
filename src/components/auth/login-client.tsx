@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState } from 'react';
@@ -65,8 +64,7 @@ export function LoginClient() {
     setIsActionLoading(true);
     const result = await loginWithGoogle();
     
-    // With redirect, this part might not be reached if the redirect is successful.
-    // It's here to catch immediate errors.
+    // This part will only be reached for popup flow (desktop) or if redirect fails immediately.
     if (result && !result.success) {
       setIsActionLoading(false);
       toast({
@@ -85,14 +83,13 @@ export function LoginClient() {
     setPassword('');
   }
   
-  // isAuthLoading now also represents the loading state after a redirect
   const isLoading = isAuthLoading || isActionLoading;
 
   if (isAuthLoading) {
     return (
        <div className="glassmorphism rounded-2xl p-8 flex flex-col items-center justify-center h-96">
             <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            <p className="mt-4 text-foreground/70 dark:text-foreground/60">Checking authentication...</p>
+            <p className="mt-4 text-foreground/70 dark:text-foreground/60">Authenticating...</p>
        </div>
     );
   }

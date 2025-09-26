@@ -138,14 +138,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth) return { success: false, message: "Authentication not ready." };
     const provider = new GoogleAuthProvider();
     
-    // For mobile devices, or browsers that block popups, redirect is better.
     const isMobile = /Mobi/i.test(window.navigator.userAgent);
 
     if (isMobile) {
         try {
             await signInWithRedirect(auth, provider);
-            // The page will redirect, so no need to return anything here.
-            // The result is handled by `getRedirectResult` in the `useEffect` hook.
         } catch (error: any) {
             console.error("Google Sign-In with redirect error:", error);
             return { success: false, message: error.message || "Google Sign-In failed." };
