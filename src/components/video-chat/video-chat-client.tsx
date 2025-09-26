@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse, Download } from 'lucide-react';
+import { Video, VideoOff, Loader2, Info, Smile, Frown, Meh, Brain, HeartPulse, Download, Angry, FileQuestion, Tired, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -13,22 +13,20 @@ import { Badge } from '../ui/badge';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useAuth } from '@/hooks/use-auth';
-import { Logo } from '../icons/logo';
+import { Progress } from '../ui/progress';
 
-const moodIcons: { [key: string]: React.ReactNode } = {
-  happy: <Smile className="w-8 h-8 text-green-500" />,
-  sad: <Frown className="w-8 h-8 text-blue-500" />,
-  neutral: <Meh className="w-8 h-8 text-yellow-500" />,
-  stressed: <Brain className="w-8 h-8 text-red-500" />,
-  anxious: <HeartPulse className="w-8 h-8 text-orange-500" />,
+const emotionIcons: { [key: string]: React.ReactNode } = {
+  'Happy': <Smile className="w-8 h-8 text-green-500" />,
+  'Sad': <Frown className="w-8 h-8 text-blue-500" />,
+  'Angry': <Angry className="w-8 h-8 text-red-500" />,
+  'Fearful/Anxious': <HeartPulse className="w-8 h-8 text-purple-500" />,
+  'Stressed/Tense': <Brain className="w-8 h-8 text-orange-500" />,
+  'Surprised': <FileQuestion className="w-8 h-8 text-yellow-500" />,
+  'Disgusted': <Frown className="w-8 h-8 text-lime-600" />,
+  'Neutral': <Meh className="w-8 h-8 text-gray-500" />,
+  'Confused': <HelpCircle className="w-8 h-8 text-indigo-500" />,
+  'Tired/Exhausted': <Tired className="w-8 h-8 text-gray-400" />,
 };
-
-const levelColors: { [key: string]: string } = {
-    "Low": "text-green-500",
-    "Medium": "text-yellow-500",
-    "High": "text-red-500",
-    "None Detected": "text-green-500"
-}
 
 export function VideoChatClient() {
   const { toast } = useToast();
@@ -356,59 +354,48 @@ export function VideoChatClient() {
                             </div>
                           </div>
                           
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div className="glassmorphism p-4 rounded-xl text-center lg:col-span-1">
-                              <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
-                              <div className="flex justify-center items-center gap-3">
-                                  {moodIcons[analysisResult.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
-                                  <p className="text-2xl font-bold gradient-text">{analysisResult.overallMood}</p>
-                              </div>
+                          <div className="grid md:grid-cols-2 lg:grid-cols-[1fr_2fr] gap-6">
+                            <div className="space-y-4">
+                                <div className="glassmorphism p-4 rounded-xl text-center">
+                                  <h5 className="font-semibold text-sm mb-2 text-foreground/80">Primary Emotion</h5>
+                                  <div className="flex justify-center items-center gap-3">
+                                      {emotionIcons[analysisResult.primary_emotion] || <Meh className="w-8 h-8 text-gray-500" />}
+                                      <p className="text-2xl font-bold gradient-text">{analysisResult.primary_emotion}</p>
+                                  </div>
+                                </div>
+                                
+                                {analysisResult.secondary_emotions.length > 0 && (
+                                    <div className="glassmorphism p-4 rounded-xl">
+                                        <h5 className="font-semibold text-sm mb-2 text-foreground/80">Secondary Emotions</h5>
+                                        <div className="flex flex-wrap gap-2">
+                                            {analysisResult.secondary_emotions.map((emotion, i) => (
+                                                <Badge key={i} variant="outline" className="text-sm">{emotion}</Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             
-                            <div className="glassmorphism p-4 rounded-xl lg:col-span-2">
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  <div>
-                                      <div className="flex items-center gap-2 mb-3">
-                                        <Brain className="w-5 h-5 text-red-500" />
-                                        <h5 className="font-semibold text-sm">Stress Analysis</h5>
-                                      </div>
-                                      <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-sm text-foreground/80">Detected Level:</span>
-                                        <p className={cn("text-lg font-bold", levelColors[analysisResult.stress.level] || 'text-foreground')}>{analysisResult.stress.level}</p>
-                                      </div>
-                                      {analysisResult.stress.indicators.length > 0 && (
-                                          <div>
-                                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300">{indicator}</Badge>)}
+                            <div className="glassmorphism p-4 rounded-xl">
+                                <h5 className="font-semibold text-sm mb-3 text-foreground/80">Confidence Scores</h5>
+                                <div className="space-y-2">
+                                    {Object.entries(analysisResult.confidence_scores)
+                                      .sort(([, a], [, b]) => b - a)
+                                      .map(([emotion, score]) => (
+                                        <div key={emotion}>
+                                            <div className="flex justify-between items-center text-xs mb-1">
+                                                <span className="font-medium text-foreground/80">{emotion}</span>
+                                                <span className="text-foreground/70">{(score * 100).toFixed(1)}%</span>
                                             </div>
-                                          </div>
-                                      )}
-                                  </div>
-                                  <div>
-                                      <div className="flex items-center gap-2 mb-3">
-                                        <HeartPulse className="w-5 h-5 text-orange-500" />
-                                        <h5 className="font-semibold text-sm">Anxiety Analysis</h5>
-                                      </div>
-                                      <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-sm text-foreground/80">Detected Level:</span>
-                                        <p className={cn("text-lg font-bold", levelColors[analysisResult.anxiety.level] || 'text-foreground')}>{analysisResult.anxiety.level}</p>
-                                      </div>
-                                      {analysisResult.anxiety.indicators.length > 0 && (
-                                        <div>
-                                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-300">{indicator}</Badge>)}
-                                            </div>
+                                            <Progress value={score * 100} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-purple-500 [&>div]:to-blue-500" />
                                         </div>
-                                      )}
-                                  </div>
-                              </div>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="glassmorphism p-4 rounded-xl bg-primary/5 lg:col-span-3">
-                              <h5 className="font-semibold text-sm mb-2 text-primary">Kai's Empathetic Summary</h5>
-                              <p className="text-sm text-foreground/80 italic">"{analysisResult.summary}"</p>
+                            <div className="glassmorphism p-4 rounded-xl bg-primary/5 md:col-span-2 lg:col-span-full">
+                              <h5 className="font-semibold text-sm mb-2 text-primary">AI Explanation</h5>
+                              <p className="text-sm text-foreground/80 italic">"{analysisResult.explanation}"</p>
                             </div>
                           </div>
                       </div>
@@ -427,5 +414,3 @@ export function VideoChatClient() {
     </div>
   );
 }
-
-    
