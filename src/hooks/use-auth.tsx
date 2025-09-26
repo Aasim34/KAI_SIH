@@ -81,14 +81,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isLoading) return; // Do nothing until loading is complete
+    if (isLoading) return;
 
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
+    if (!isAuthenticated && isProtectedRoute) {
+      router.push('/');
+    }
     if (isAuthenticated && pathname === '/') {
       router.push('/home');
-    } else if (!isAuthenticated && isProtectedRoute) {
-      router.push('/');
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
@@ -97,6 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
       return { success: true, message: `Welcome, ${name}!` };
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
@@ -109,7 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     if (!auth) return { success: false, message: "Authentication not ready." };
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
       return { success: true, message: "Welcome back!" };
     } catch (error: any) {
       return { success: false, message: "Invalid email or password." };
@@ -120,7 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth) return { success: false, message: "Authentication not ready." };
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
+        const userCredential = await signInWithPopup(auth, provider);
+        setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
         return { success: true, message: "Signed in with Google successfully!" };
     } catch (error: any) {
         if (error.code === 'auth/popup-closed-by-user') {
@@ -130,9 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [auth]);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     if (!auth) return;
-    signOut(auth);
+    try {
+      await signOut(auth);
+      // The onAuthStateChanged listener will handle setting user to null
+      // and the other useEffect will handle redirection.
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   }, [auth]);
 
   const value = { isAuthenticated, user, isLoading, signup, login, loginWithGoogle, logout };
