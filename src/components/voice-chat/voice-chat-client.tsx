@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -13,6 +12,7 @@ import { Badge } from '../ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useAuth } from '@/hooks/use-auth';
 
 const moodIcons: { [key: string]: React.ReactNode } = {
   happy: <Smile className="w-6 h-6 text-green-500" />,
@@ -31,10 +31,12 @@ const levelColors: { [key: string]: string } = {
 
 export function VoiceChatClient() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [hasMicPermission, setHasMicPermission] = useState<boolean | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<VoiceAnalysisOutput | null>(null);
+  const [analysisDate, setAnalysisDate] = useState<Date | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -85,6 +87,7 @@ export function VoiceChatClient() {
     if (isRecording || hasMicPermission === false) return;
 
     setAnalysisResult(null);
+    setAnalysisDate(null);
     setIsRecording(true);
     setRecordingTime(0);
 
@@ -114,6 +117,7 @@ export function VoiceChatClient() {
         try {
           const result = await analyzeVoice({ audioDataUri: base64data });
           setAnalysisResult(result);
+          setAnalysisDate(new Date());
         } catch (error) {
           console.error("Analysis failed:", error);
           toast({
@@ -173,17 +177,31 @@ export function VoiceChatClient() {
         const canvas = await html2canvas(reportRef.current, { 
             scale: 2, 
             useCORS: true,
-            backgroundColor: document.documentElement.classList.contains('dark') ? '#0f172a' : '#F0F2FF'
+            backgroundColor: null
         });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
             orientation: 'portrait',
             unit: 'px',
-            format: [canvas.width, canvas.height]
+            format: [canvas.width, canvas.height + 80] // Add space for header
         });
 
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        // Add Header
+        pdf.setFillColor(240, 242, 255); // --background HSL
+        if (document.documentElement.classList.contains('dark')) {
+            pdf.setFillColor(22, 33, 62); // dark --background HSL
+        }
+        pdf.rect(0, 0, pdf.internal.pageSize.width, 80, 'F');
+        pdf.setFontSize(20);
+        pdf.setTextColor(79, 70, 229); // --primary HSL
+         if (document.documentElement.classList.contains('dark')) {
+             pdf.setTextColor(165, 180, 252);
+         }
+        pdf.text("Kai Wellness Analysis Report", 20, 45);
+
+        pdf.addImage(imgData, 'PNG', 0, 80, canvas.width, canvas.height);
+        
         pdf.save(`kai-voice-report-${new Date().toISOString().split('T')[0]}.pdf`);
 
         toast({
@@ -269,18 +287,33 @@ export function VoiceChatClient() {
                         </TooltipProvider>
                     </div>
                 </div>
-                <div ref={reportRef} className="p-1 bg-transparent">
+                <div className="w-full">
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
                 ) : analysisResult ? (
-                  <div className="space-y-4">
+                  <div ref={reportRef} className="bg-gradient-to-br from-white/20 to-transparent dark:from-white/10 dark:to-transparent p-4 rounded-xl border border-white/30 dark:border-white/20 space-y-4">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 pb-4 border-b border-white/30">
+                        <div>
+                            <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Name</p>
+                            <p className="text-sm font-bold">{user?.name || 'User'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Date</p>
+                            <p className="text-sm font-bold">{analysisDate?.toLocaleDateString() || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Type</p>
+                            <p className="text-sm font-bold">Voice Analysis</p>
+                        </div>
+                    </div>
+                    
                     <div className="glassmorphism p-4 rounded-xl text-center">
-                        <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
+                        <h5 className="font-semibold text-xs mb-2 text-foreground/80">OVERALL MOOD</h5>
                         <div className="flex justify-center items-center gap-3">
                             {moodIcons[analysisResult.analysis.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
-                            <p className="text-2xl font-bold gradient-text">{analysisResult.analysis.overallMood}</p>
+                            <p className="text-xl font-bold gradient-text">{analysisResult.analysis.overallMood}</p>
                         </div>
                     </div>
                     <div className="glassmorphism p-4 rounded-xl">

@@ -11,6 +11,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { Badge } from '../ui/badge';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useAuth } from '@/hooks/use-auth';
+import { Logo } from '../icons/logo';
 
 const moodIcons: { [key: string]: React.ReactNode } = {
   happy: <Smile className="w-8 h-8 text-green-500" />,
@@ -29,12 +31,14 @@ const levelColors: { [key: string]: string } = {
 
 export function VideoChatClient() {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(isAnalyzing);
   const [analysisResult, setAnalysisResult] = useState<VideoAnalysisOutput | null>(null);
+  const [analysisDate, setAnalysisDate] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState(5);
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -54,10 +58,8 @@ export function VideoChatClient() {
         return;
       }
       try {
-        // This prompts the user for permission
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         setHasCameraPermission(true);
-        // We have permission, but we don't need the stream right now, so we stop it.
         stream.getTracks().forEach(track => track.stop());
       } catch (error: any) {
         console.error('Error accessing camera:', error);
@@ -143,6 +145,7 @@ export function VideoChatClient() {
     if (!stream) return;
 
     setAnalysisResult(null);
+    setAnalysisDate(null);
     setIsRecording(true);
 
     recordedChunksRef.current = [];
@@ -168,6 +171,7 @@ export function VideoChatClient() {
         try {
           const result = await analyzeVideo({ videoDataUri: base64data });
           setAnalysisResult(result);
+          setAnalysisDate(new Date());
         } catch (error) {
           console.error("Analysis failed:", error);
           toast({
@@ -202,17 +206,31 @@ export function VideoChatClient() {
         const canvas = await html2canvas(reportRef.current, { 
             scale: 2, 
             useCORS: true,
-            backgroundColor: document.documentElement.classList.contains('dark') ? '#16213e' : '#F0F2FF'
+            backgroundColor: null
         });
         const imgData = canvas.toDataURL('image/png');
         
         const pdf = new jsPDF({
             orientation: 'portrait',
             unit: 'px',
-            format: [canvas.width, canvas.height]
+            format: [canvas.width, canvas.height + 80] // Add space for header
         });
 
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        // Add Header
+        pdf.setFillColor(240, 242, 255); // --background HSL
+        if (document.documentElement.classList.contains('dark')) {
+            pdf.setFillColor(22, 33, 62); // dark --background HSL
+        }
+        pdf.rect(0, 0, pdf.internal.pageSize.width, 80, 'F');
+        pdf.setFontSize(20);
+        pdf.setTextColor(79, 70, 229); // --primary HSL
+         if (document.documentElement.classList.contains('dark')) {
+             pdf.setTextColor(165, 180, 252);
+         }
+        pdf.text("Kai Wellness Analysis Report", 20, 45);
+
+        pdf.addImage(imgData, 'PNG', 0, 80, canvas.width, canvas.height);
+        
         pdf.save(`kai-video-report-${new Date().toISOString().split('T')[0]}.pdf`);
 
         toast({
@@ -306,66 +324,83 @@ export function VideoChatClient() {
                         </TooltipProvider>
                     </div>
                 </div>
-                <div ref={reportRef} className="max-w-4xl mx-auto w-full p-4 bg-transparent">
+                <div className="max-w-4xl mx-auto w-full">
                     {isAnalyzing ? (
                         <div className="flex items-center justify-center h-48">
                             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                         </div>
                     ) : analysisResult ? (
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="glassmorphism p-4 rounded-xl text-center lg:col-span-1">
-                          <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
-                          <div className="flex justify-center items-center gap-3">
-                              {moodIcons[analysisResult.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
-                              <p className="text-2xl font-bold gradient-text">{analysisResult.overallMood}</p>
+                      <div ref={reportRef} className="bg-gradient-to-br from-white/20 to-transparent dark:from-white/10 dark:to-transparent p-6 rounded-2xl border border-white/30 dark:border-white/20">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 pb-4 border-b border-white/30">
+                            <div>
+                                <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Name</p>
+                                <p className="font-bold">{user?.name || 'User'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Date</p>
+                                <p className="font-bold">{analysisDate?.toLocaleDateString() || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-foreground/70 dark:text-foreground/60">Analysis Type</p>
+                                <p className="font-bold">Video Analysis</p>
+                            </div>
                           </div>
-                        </div>
-                        
-                        <div className="glassmorphism p-4 rounded-xl lg:col-span-2">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Brain className="w-5 h-5 text-red-500" />
-                                    <h5 className="font-semibold text-sm">Stress Analysis</h5>
-                                  </div>
-                                  <div className="flex justify-between items-baseline mb-2">
-                                    <span className="text-sm text-foreground/80">Detected Level:</span>
-                                    <p className={cn("text-lg font-bold", levelColors[analysisResult.stress.level] || 'text-foreground')}>{analysisResult.stress.level}</p>
-                                  </div>
-                                  {analysisResult.stress.indicators.length > 0 && (
-                                      <div>
-                                        <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300">{indicator}</Badge>)}
-                                        </div>
+                          
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="glassmorphism p-4 rounded-xl text-center lg:col-span-1">
+                              <h5 className="font-semibold text-sm mb-2 text-foreground/80">OVERALL MOOD</h5>
+                              <div className="flex justify-center items-center gap-3">
+                                  {moodIcons[analysisResult.overallMood.toLowerCase()] || <Meh className="w-8 h-8 text-gray-500" />}
+                                  <p className="text-2xl font-bold gradient-text">{analysisResult.overallMood}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="glassmorphism p-4 rounded-xl lg:col-span-2">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                  <div>
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <Brain className="w-5 h-5 text-red-500" />
+                                        <h5 className="font-semibold text-sm">Stress Analysis</h5>
                                       </div>
-                                  )}
-                              </div>
-                              <div>
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <HeartPulse className="w-5 h-5 text-orange-500" />
-                                    <h5 className="font-semibold text-sm">Anxiety Analysis</h5>
+                                      <div className="flex justify-between items-baseline mb-2">
+                                        <span className="text-sm text-foreground/80">Detected Level:</span>
+                                        <p className={cn("text-lg font-bold", levelColors[analysisResult.stress.level] || 'text-foreground')}>{analysisResult.stress.level}</p>
+                                      </div>
+                                      {analysisResult.stress.indicators.length > 0 && (
+                                          <div>
+                                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {analysisResult.stress.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-red-500/50 bg-red-500/10 text-red-700 dark:text-red-300">{indicator}</Badge>)}
+                                            </div>
+                                          </div>
+                                      )}
                                   </div>
-                                  <div className="flex justify-between items-baseline mb-2">
-                                    <span className="text-sm text-foreground/80">Detected Level:</span>
-                                    <p className={cn("text-lg font-bold", levelColors[analysisResult.anxiety.level] || 'text-foreground')}>{analysisResult.anxiety.level}</p>
-                                  </div>
-                                  {analysisResult.anxiety.indicators.length > 0 && (
-                                    <div>
-                                        <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-300">{indicator}</Badge>)}
+                                  <div>
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <HeartPulse className="w-5 h-5 text-orange-500" />
+                                        <h5 className="font-semibold text-sm">Anxiety Analysis</h5>
+                                      </div>
+                                      <div className="flex justify-between items-baseline mb-2">
+                                        <span className="text-sm text-foreground/80">Detected Level:</span>
+                                        <p className={cn("text-lg font-bold", levelColors[analysisResult.anxiety.level] || 'text-foreground')}>{analysisResult.anxiety.level}</p>
+                                      </div>
+                                      {analysisResult.anxiety.indicators.length > 0 && (
+                                        <div>
+                                            <h6 className="text-xs font-semibold text-foreground/70 mb-1">Indicators:</h6>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {analysisResult.anxiety.indicators.map((indicator, i) => <Badge key={i} variant="outline" className="text-xs border-orange-500/50 bg-orange-500/10 text-orange-700 dark:text-orange-300">{indicator}</Badge>)}
+                                            </div>
                                         </div>
-                                    </div>
-                                  )}
+                                      )}
+                                  </div>
                               </div>
-                          </div>
-                        </div>
+                            </div>
 
-                        <div className="glassmorphism p-4 rounded-xl bg-primary/5 lg:col-span-3">
-                          <h5 className="font-semibold text-sm mb-2 text-primary">Kai's Empathetic Summary</h5>
-                          <p className="text-sm text-foreground/80 italic">"{analysisResult.summary}"</p>
-                        </div>
+                            <div className="glassmorphism p-4 rounded-xl bg-primary/5 lg:col-span-3">
+                              <h5 className="font-semibold text-sm mb-2 text-primary">Kai's Empathetic Summary</h5>
+                              <p className="text-sm text-foreground/80 italic">"{analysisResult.summary}"</p>
+                            </div>
+                          </div>
                       </div>
                     ) : (
                       <div className="text-center text-muted-foreground h-48 flex flex-col justify-center items-center p-6 border-2 border-dashed rounded-2xl">
@@ -382,3 +417,5 @@ export function VideoChatClient() {
     </div>
   );
 }
+
+    
