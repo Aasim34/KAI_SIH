@@ -12,18 +12,18 @@ import { useAuth } from '@/hooks/use-auth';
 type AuthMode = 'signin' | 'signup';
 
 export function LoginClient() {
-  const { login, signup } = useAuth();
+  const { login, signup, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
   
   const [mode, setMode] = useState<AuthMode>('signin');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
   const handleAuthAction = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
+    setIsActionLoading(true);
 
     let result;
     if (mode === 'signin') {
@@ -32,7 +32,7 @@ export function LoginClient() {
       result = await signup(name, email, password);
     }
 
-    setIsLoading(false);
+    setIsActionLoading(false);
 
     if (result.success) {
       toast({ 
@@ -54,6 +54,8 @@ export function LoginClient() {
     setEmail('');
     setPassword('');
   }
+  
+  const isLoading = isAuthLoading || isActionLoading;
 
   return (
     <div className="glassmorphism rounded-2xl p-8">

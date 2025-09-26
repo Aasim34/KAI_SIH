@@ -3,6 +3,35 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  updateProfile,
+  User as FirebaseUser
+} from 'firebase/auth';
+
+// IMPORTANT: Replace this with your actual Firebase config
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+let firebaseApp: FirebaseApp;
+if (!getApps().length) {
+  firebaseApp = initializeApp(firebaseConfig);
+} else {
+  firebaseApp = getApps()[0];
+}
+
+const auth = getAuth(firebaseApp);
 
 type AuthResult = {
   success: boolean;
@@ -10,14 +39,14 @@ type AuthResult = {
 };
 
 interface User {
-  name: string;
-  email: string;
-  password?: string; // Password should not be stored in JWT or client state long-term
+  name: string | null;
+  email: string | null;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
@@ -28,106 +57,73 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const protectedRoutes = ['/home', '/dashboard', '/chat', '/voice-chat', '/video-chat'];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  
+  const isAuthenticated = !!user;
 
   useEffect(() => {
-    try {
-      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-      const userData = localStorage.getItem('kai-user');
-      if (authStatus && userData) {
-        setIsAuthenticated(true);
-        setUser(JSON.parse(userData));
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({ name: firebaseUser.displayName, email: firebaseUser.email });
+      } else {
+        setUser(null);
       }
-    } catch (e) {
-      console.error("Could not parse auth data from localStorage", e);
-    } finally {
       setIsLoading(false);
-    }
+    });
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     if (isLoading) {
       return; 
     }
-
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-
     if (isProtectedRoute && !isAuthenticated) {
       router.push('/');
     }
-
     if (isAuthenticated && pathname === '/') {
       router.push('/home');
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
   const signup = useCallback(async (name: string, email: string, password: string): Promise<AuthResult> => {
-    if (!name || !email || !password) {
-      return { success: false, message: "Please fill out all fields." };
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      setUser({ name: name, email: email });
+      router.push('/home');
+      return { success: true, message: `Welcome, ${name}!` };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Sign-up failed." };
     }
-    
-    const usersJSON = localStorage.getItem('kai-users');
-    const users = usersJSON ? JSON.parse(usersJSON) : [];
-    const existingUser = users.find((u: User) => u.email === email);
-
-    if (existingUser) {
-      return { success: false, message: "An account with this email already exists." };
-    }
-
-    const newUser = { name, email, password };
-    users.push(newUser);
-    localStorage.setItem('kai-users', JSON.stringify(users));
-    
-    const currentUser = { name, email };
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem('kai-user', JSON.stringify(currentUser));
-    
-    setIsAuthenticated(true);
-    setUser(currentUser);
-    
-    router.push('/home');
-    return { success: true, message: `Welcome, ${name}!` };
   }, [router]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    const usersJSON = localStorage.getItem('kai-users');
-    const users = usersJSON ? JSON.parse(usersJSON) : [];
-    const foundUser = users.find((u: any) => u.email === email);
-
-    if (foundUser && foundUser.password === password) {
-      const currentUser = { name: foundUser.name, email: foundUser.email };
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('kai-user', JSON.stringify(currentUser));
-
-      setIsAuthenticated(true);
-      setUser(currentUser);
-      
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       router.push('/home');
       return { success: true, message: "Welcome back!" };
+    } catch (error: any) {
+      return { success: false, message: "Invalid email or password." };
     }
-
-    return { success: false, message: "Invalid email or password." };
   }, [router]);
 
-
   const logout = useCallback(() => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('kai-user');
-    setIsAuthenticated(false);
-    setUser(null);
-    router.push('/');
+    signOut(auth).then(() => {
+      setUser(null);
+      router.push('/');
+    });
   }, [router]);
 
   if (isLoading) {
-    return null;
+    return null; // Or a loading spinner
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, signup, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, signup, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
