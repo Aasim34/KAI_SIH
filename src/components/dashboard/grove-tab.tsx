@@ -12,8 +12,6 @@ const gardenStages = [
     { icon: '🌻', name: 'Sunflower', unlocked: false },
 ];
 
-const audioSrc = "https://drive.google.com/uc?export=download&id=1GslP_W98m9hLJ_1DUMhtzPJp8W1KLfxx"; 
-
 export function GroveTab() {
   return (
     <div className="space-y-8">
@@ -36,18 +34,7 @@ export function GroveTab() {
         
         <div className="glassmorphism p-6 rounded-xl">
             <h4 className="font-semibold mb-4 font-headline">🎵 Music Mood Lift</h4>
-            <div className="flex items-center gap-4">
-                <div className="flex-1">
-                    <div className="font-semibold font-headline">Lofi Chill</div>
-                    <div className="text-sm text-foreground/70 dark:text-foreground/60">Relaxing instrumental music</div>
-                </div>
-            </div>
-            <div className="mt-4">
-                <audio controls className="w-full">
-                  <source src={audioSrc} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-            </div>
+            <iframe width="100%" height="166" scrolling="no" frameBorder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2177213340&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
         </div>
     </div>
   );
