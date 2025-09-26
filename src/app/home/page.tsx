@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, Bot, LayoutDashboard, Mic, Video } from 'lucide-react';
 import Link from 'next/link';
@@ -42,10 +44,10 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6" style={{ perspective: '1000px' }}>
           {navOptions.map(item => (
             <Link href={item.href} key={item.href} className="group">
-              <Card className="glassmorphism h-full hover:border-primary/50 transition-all transform hover:scale-[1.02]">
+              <Card className="glassmorphism h-full hover:border-primary/50 transition-all transform hover:[transform:rotateY(-5deg)_rotateX(10deg)_scale(1.05)] duration-300">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-xl font-bold font-headline">{item.title}</CardTitle>
                   <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
