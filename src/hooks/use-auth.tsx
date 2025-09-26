@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -6,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 interface AuthContextType {
   isAuthenticated: boolean;
   login: () => void;
+  signup: () => void;
   logout: () => void;
 }
 
@@ -50,6 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/home');
   };
 
+  const signup = () => {
+    // In a real app, you'd save user details to a database here.
+    // For this mock, we'll just log them in.
+    localStorage.setItem('isAuthenticated', 'true');
+    setIsAuthenticated(true);
+    router.push('/home');
+  };
+
   const logout = () => {
     localStorage.removeItem('isAuthenticated');
     setIsAuthenticated(false);
@@ -62,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
