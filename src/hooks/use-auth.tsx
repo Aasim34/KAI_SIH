@@ -70,7 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "Please fill out all fields." };
     }
     
-    const users = JSON.parse(localStorage.getItem('kai-users') || '[]');
+    const usersJSON = localStorage.getItem('kai-users');
+    const users = usersJSON ? JSON.parse(usersJSON) : [];
     const existingUser = users.find((u: User) => u.email === email);
 
     if (existingUser) {
@@ -94,7 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<AuthResult> => {
-    const users = JSON.parse(localStorage.getItem('kai-users') || '[]');
+    const usersJSON = localStorage.getItem('kai-users');
+    const users = usersJSON ? JSON.parse(usersJSON) : [];
     const foundUser = users.find((u: any) => u.email === email);
 
     if (foundUser && foundUser.password === password) {
