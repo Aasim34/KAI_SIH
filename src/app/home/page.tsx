@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, Bot, LayoutDashboard, Mic, Video } from 'lucide-react';
+import { ArrowRight, Bot, LayoutDashboard, Mic, Video, Share, BrainCircuit, Sparkles, Carrot } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,29 @@ const navOptions = [
   },
 ];
 
+const flowSteps = [
+    {
+        icon: <Share className="w-8 h-8 text-primary" />,
+        title: "1. Share Your Feelings",
+        description: "Check in through text, voice, or video. Express yourself in the way that feels most comfortable.",
+    },
+    {
+        icon: <BrainCircuit className="w-8 h-8 text-primary" />,
+        title: "2. AI-Powered Analysis",
+        description: "Kai's advanced AI analyzes your input for emotional, vocal, and facial cues to understand your state.",
+    },
+    {
+        icon: <Sparkles className="w-8 h-8 text-primary" />,
+        title: "3. Personalized Insights",
+        description: "Receive empathetic feedback and actionable recommendations tailored specifically to you.",
+    },
+    {
+        icon: <Carrot className="w-8 h-8 text-primary" />,
+        title: "4. Engage & Grow",
+        description: "Use mindful games, track your progress, and watch your virtual 'Mindful Grove' flourish.",
+    },
+];
+
 export default function HomePage() {
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
 
@@ -47,7 +70,7 @@ export default function HomePage() {
 
   return (
     <div className="pt-24 pb-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h1 className="gradient-text text-4xl md:text-5xl font-bold mb-4 font-headline">
             Welcome to Kai
@@ -55,6 +78,26 @@ export default function HomePage() {
           <p className="text-xl text-foreground/70 dark:text-foreground/60 max-w-3xl mx-auto">
             Your personal AI companion for student wellness. Kai is here to listen, support, and guide you with a friendly ear and evidence-based techniques.
           </p>
+        </div>
+
+        <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center mb-8 gradient-text font-headline">How Kai Helps You</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {flowSteps.map((step, index) => (
+                    <div key={index} className="relative">
+                        <Card className="glassmorphism h-full text-center p-6">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                {step.icon}
+                            </div>
+                            <h3 className="text-lg font-bold mb-2 font-headline">{step.title}</h3>
+                            <p className="text-sm text-foreground/70 dark:text-foreground/60">{step.description}</p>
+                        </Card>
+                        {index < flowSteps.length - 1 && (
+                            <ArrowRight className="absolute top-1/2 -right-3 h-6 w-6 text-primary/30 hidden lg:block" />
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6" style={{ perspective: '1000px' }}>
