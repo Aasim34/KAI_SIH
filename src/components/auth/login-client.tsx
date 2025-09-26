@@ -26,7 +26,7 @@ export function LoginClient() {
     setTimeout(() => {
       setIsLoginLoading(false);
       toast({ title: "Login Successful", description: "Welcome back!" });
-      router.push('/dashboard');
+      router.push('/landing');
     }, 1500);
   };
 
@@ -37,14 +37,14 @@ export function LoginClient() {
       setIsSignupLoading(false);
       setIsSignupOpen(false);
       toast({ title: "Account Created!", description: "Welcome to Kai Wellness!" });
-      router.push('/dashboard');
+      router.push('/landing');
     }, 1500);
   };
   
   const handleSocialLogin = (provider: string) => {
-    toast({ title: `Simulating ${provider} login...`, description: "Redirecting to dashboard." });
+    toast({ title: `Simulating ${provider} login...`, description: "Redirecting to home." });
     setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/landing');
     }, 1000);
   }
 
