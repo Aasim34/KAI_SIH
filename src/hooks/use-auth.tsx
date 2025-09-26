@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 type AuthResult = {
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
-  const signup = async (name: string, email: string, password: string): Promise<AuthResult> => {
+  const signup = useCallback(async (name: string, email: string, password: string): Promise<AuthResult> => {
     if (!name || !email || !password) {
       return { success: false, message: "Please fill out all fields." };
     }
@@ -78,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "An account with this email already exists." };
     }
 
-    // In a real app, you would hash the password here.
     const newUser = { name, email, password };
     users.push(newUser);
     localStorage.setItem('kai-users', JSON.stringify(users));
@@ -92,9 +91,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     router.push('/home');
     return { success: true, message: `Welcome, ${name}!` };
-  };
+  }, [router]);
 
-  const login = async (email: string, password: string): Promise<AuthResult> => {
+  const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     const usersJSON = localStorage.getItem('kai-users');
     const users = usersJSON ? JSON.parse(usersJSON) : [];
     const foundUser = users.find((u: any) => u.email === email);
@@ -112,16 +111,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     return { success: false, message: "Invalid email or password." };
-  };
+  }, [router]);
 
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('kai-user');
     setIsAuthenticated(false);
     setUser(null);
     router.push('/');
-  };
+  }, [router]);
 
   if (isLoading) {
     return null;
