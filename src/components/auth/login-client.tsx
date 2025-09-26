@@ -11,8 +11,19 @@ import { useAuth } from '@/hooks/use-auth';
 
 type AuthMode = 'signin' | 'signup';
 
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
+        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.618-3.317-11.28-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+t-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.618-3.317-11.28-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+        <path fill="#1976D2" d="M43.611,20.083L43.595,20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.012,35.245,44,30.028,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+    </svg>
+);
+
+
 export function LoginClient() {
-  const { login, signup, isLoading: isAuthLoading } = useAuth();
+  const { login, signup, loginWithGoogle, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
   
   const [mode, setMode] = useState<AuthMode>('signin');
@@ -21,7 +32,7 @@ export function LoginClient() {
   const [password, setPassword] = useState('');
   const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const handleAuthAction = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEmailAuthAction = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsActionLoading(true);
 
@@ -48,6 +59,20 @@ export function LoginClient() {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    setIsActionLoading(true);
+    const result = await loginWithGoogle();
+    setIsActionLoading(false);
+
+    if (!result.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Google Sign-In Failed',
+        description: result.message,
+      });
+    }
+  }
+
   const toggleMode = () => {
     setMode(prev => prev === 'signin' ? 'signup' : 'signin');
     setName('');
@@ -67,7 +92,7 @@ export function LoginClient() {
         <p className="text-foreground/70 dark:text-foreground/60">{mode === 'signin' ? 'Sign in to begin' : 'Get started with your wellness journey'}</p>
       </div>
 
-      <form onSubmit={handleAuthAction} className="space-y-6">
+      <form onSubmit={handleEmailAuthAction} className="space-y-6">
         {mode === 'signup' && (
           <div>
             <Label htmlFor="name">Name</Label>
@@ -110,10 +135,26 @@ export function LoginClient() {
           />
         </div>
         <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:shadow-lg transition-all transform hover:scale-105">
-          {isLoading ? (mode === 'signin' ? 'Signing in...' : 'Creating account...') : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
+          {isLoading && mode === 'signin' ? 'Signing in...' : isLoading && mode === 'signup' ? 'Creating account...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
         </Button>
       </form>
       
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+      <Button variant="outline" className="w-full bg-background/50" onClick={handleGoogleAuth} disabled={isLoading}>
+        <GoogleIcon className="mr-2 h-5 w-5" />
+        Sign in with Google
+      </Button>
+
       <div className="mt-6 text-center">
         <p className="text-sm text-foreground/70 dark:text-foreground/60">
           {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}

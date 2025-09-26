@@ -11,6 +11,8 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
   User as FirebaseUser,
   Auth
 } from 'firebase/auth';
@@ -40,6 +42,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
+  loginWithGoogle: () => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -113,6 +116,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { success: false, message: "Invalid email or password." };
     }
   }, [router, auth]);
+  
+  const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
+    if (!auth) return { success: false, message: "Authentication not ready." };
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+        router.push('/home');
+        return { success: true, message: "Signed in with Google successfully!" };
+    } catch (error: any) {
+        return { success: false, message: error.message || "Google Sign-In failed." };
+    }
+  }, [router, auth]);
 
   const logout = useCallback(() => {
     if (!auth) return;
@@ -122,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [router, auth]);
 
-  const value = { isAuthenticated, user, isLoading, signup, login, logout };
+  const value = { isAuthenticated, user, isLoading, signup, login, loginWithGoogle, logout };
 
   return (
     <AuthContext.Provider value={value}>
