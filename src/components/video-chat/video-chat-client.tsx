@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -36,7 +37,7 @@ export function VideoChatClient() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(isAnalyzing);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<VideoAnalysisOutput | null>(null);
   const [analysisDate, setAnalysisDate] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState(5);
@@ -417,5 +418,7 @@ export function VideoChatClient() {
     </div>
   );
 }
+
+    
 
     
