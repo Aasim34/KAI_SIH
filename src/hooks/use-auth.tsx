@@ -11,7 +11,8 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   updateProfile,
-  User as FirebaseUser
+  User as FirebaseUser,
+  Auth
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -22,15 +23,6 @@ const firebaseConfig = {
   "measurementId": "",
   "messagingSenderId": "901983621273"
 };
-
-let firebaseApp: FirebaseApp;
-if (!getApps().length) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApps()[0];
-}
-
-const auth = getAuth(firebaseApp);
 
 type AuthResult = {
   success: boolean;
@@ -58,13 +50,23 @@ const protectedRoutes = ['/home', '/dashboard', '/chat', '/voice-chat', '/video-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [auth, setAuth] = useState<Auth | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    let firebaseApp: FirebaseApp;
+    if (!getApps().length) {
+      firebaseApp = initializeApp(firebaseConfig);
+    } else {
+      firebaseApp = getApps()[0];
+    }
+    const authInstance = getAuth(firebaseApp);
+    setAuth(authInstance);
+
+    const unsubscribe = onAuthStateChanged(authInstance, (firebaseUser) => {
       if (firebaseUser) {
         setUser({ name: firebaseUser.displayName, email: firebaseUser.email });
       } else {
@@ -89,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, isLoading, pathname, router]);
 
   const signup = useCallback(async (name: string, email: string, password: string): Promise<AuthResult> => {
+    if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
@@ -98,9 +101,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       return { success: false, message: error.message || "Sign-up failed." };
     }
-  }, [router]);
+  }, [router, auth]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/home');
@@ -108,14 +112,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       return { success: false, message: "Invalid email or password." };
     }
-  }, [router]);
+  }, [router, auth]);
 
   const logout = useCallback(() => {
+    if (!auth) return;
     signOut(auth).then(() => {
       setUser(null);
       router.push('/');
     });
-  }, [router]);
+  }, [router, auth]);
 
   if (isLoading) {
     return null; // Or a loading spinner
