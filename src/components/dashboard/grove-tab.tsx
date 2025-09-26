@@ -15,7 +15,7 @@ const gardenStages = [
     { icon: '🌻', name: 'Sunflower', unlocked: false },
 ];
 
-const audioSrc = "https://cdn.pixabay.com/audio/2022/10/18/audio_b722a84353.mp3"; // Royalty-free "Lofi Chill"
+const audioSrc = "https://drive.google.com/uc?export=download&id=1GslP_W98m9hLJ_1DUMhtzPJp8W1KLfxx"; 
 
 export function GroveTab() {
   const [isPlaying, setIsPlaying] = useState(false);
