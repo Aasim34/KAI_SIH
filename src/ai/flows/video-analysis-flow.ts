@@ -9,8 +9,14 @@
  * - VideoAnalysisOutput - The return type for the analyzeVideo function.
  */
 
-import {ai} from '@/ai/genkit';
+import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
+
+// Define a separate Genkit instance with the specific API key for video analysis.
+const videoAi = genkit({
+  plugins: [googleAI({apiKey: 'AIzaSyDcVSoRPwlWXukmFTSj2pZvwklmQi4yR8E'})],
+});
 
 const VideoAnalysisInputSchema = z.object({
   videoDataUri: z
@@ -52,7 +58,7 @@ export async function analyzeVideo(
   return videoAnalysisFlow(input);
 }
 
-const prompt = ai.definePrompt({
+const prompt = videoAi.definePrompt({
   name: 'videoAnalysisPrompt',
   input: {schema: VideoAnalysisInputSchema},
   output: {schema: VideoAnalysisOutputSchema},
@@ -70,11 +76,31 @@ Classify the emotions into the following categories:
 - Confused  
 - Tired/Exhausted  
 
+Follow this output format strictly:
+
+{
+  "primary_emotion": "Most dominant emotion",
+  "secondary_emotions": ["Other possible emotions"],
+  "confidence_scores": {
+      "Happy": 0.00,
+      "Sad": 0.00,
+      "Angry": 0.00,
+      "Fearful/Anxious": 0.00,
+      "Stressed/Tense": 0.00,
+      "Surprised": 0.00,
+      "Disgusted": 0.00,
+      "Neutral": 0.00,
+      "Confused": 0.00,
+      "Tired/Exhausted": 0.00
+  },
+  "explanation": "Brief reasoning based on facial features such as eyes, mouth, and expressions."
+}
+
 Video to analyze:
 {{media url=videoDataUri}}`,
 });
 
-const videoAnalysisFlow = ai.defineFlow(
+const videoAnalysisFlow = videoAi.defineFlow(
   {
     name: 'videoAnalysisFlow',
     inputSchema: VideoAnalysisInputSchema,
