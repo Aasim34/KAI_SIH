@@ -41,10 +41,10 @@ export async function getKaiResponse(input: { message: string; mood?: string }) 
       recentActivity: message,
     });
     
-    let responseText = "Thank you for sharing. I'm here to listen. How can I best support you right now? 🤗";
+    let responseText = aiResponse.responseText;
 
     if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
-        responseText = `I understand. Based on what you've shared, here are a few things that might help:\n- ${aiResponse.recommendations.join('\n- ')}\n\nWould you like to try one of these?`;
+        responseText += `\n\nHere are a few things that might help:\n- ${aiResponse.recommendations.join('\n- ')}\n\nWould you like to try one of these?`;
     }
 
     return { success: true, response: responseText };
