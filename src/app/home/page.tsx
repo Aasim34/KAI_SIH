@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, Bot, LayoutDashboard, Mic, Video, Share, BrainCircuit, Sparkles, Carrot } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { cn } from '@/lib/utils';
+import { KaiAvatar3D } from '@/components/home/kai-avatar-3d';
 
 const navOptions = [
   {
@@ -71,13 +72,20 @@ export default function HomePage() {
   return (
     <div className="pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <h1 className="gradient-text text-4xl md:text-5xl font-bold mb-4 font-headline">
-            Welcome to Kai
-          </h1>
-          <p className="text-xl text-foreground/70 dark:text-foreground/60 max-w-3xl mx-auto">
-            Your personal AI companion for student wellness. Kai is here to listen, support, and guide you with a friendly ear and evidence-based techniques.
-          </p>
+        <div className="text-center mb-12 relative">
+            <div className="absolute -top-24 -left-24 h-96 w-96 opacity-50 z-0">
+                <Suspense fallback={<div className="w-full h-full bg-primary/10 rounded-full animate-pulse" />}>
+                    <KaiAvatar3D />
+                </Suspense>
+            </div>
+          <div className='relative z-10'>
+              <h1 className="gradient-text text-4xl md:text-5xl font-bold mb-4 font-headline">
+                Welcome to Kai
+              </h1>
+              <p className="text-xl text-foreground/70 dark:text-foreground/60 max-w-3xl mx-auto">
+                Your personal AI companion for student wellness. Kai is here to listen, support, and guide you with a friendly ear and evidence-based techniques.
+              </p>
+          </div>
         </div>
 
         <div className="mb-16">
