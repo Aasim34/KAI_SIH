@@ -81,15 +81,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isLoading) {
-      return; 
-    }
-    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-    if (isProtectedRoute && !isAuthenticated) {
-      router.push('/');
-    }
-    if (isAuthenticated && pathname === '/') {
-      router.push('/home');
+    if (!isLoading) {
+      const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+      if (isAuthenticated) {
+        // If user is authenticated and on the login page, redirect to home
+        if (pathname === '/') {
+          router.push('/home');
+        }
+      } else {
+        // If user is not authenticated and on a protected route, redirect to login
+        if (isProtectedRoute) {
+          router.push('/');
+        }
+      }
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
@@ -98,44 +102,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      setUser({ name: name, email: email });
-      router.push('/home');
+      // No need to set user here, onAuthStateChanged will handle it
+      // No need to router.push here, useEffect will handle it
       return { success: true, message: `Welcome, ${name}!` };
     } catch (error: any) {
       return { success: false, message: error.message || "Sign-up failed." };
     }
-  }, [router, auth]);
+  }, [auth]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/home');
+      // No need to router.push here, useEffect will handle it
       return { success: true, message: "Welcome back!" };
     } catch (error: any) {
       return { success: false, message: "Invalid email or password." };
     }
-  }, [router, auth]);
+  }, [auth]);
   
   const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
     if (!auth) return { success: false, message: "Authentication not ready." };
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
-        router.push('/home');
+        // No need to router.push here, useEffect will handle it
         return { success: true, message: "Signed in with Google successfully!" };
     } catch (error: any) {
         return { success: false, message: error.message || "Google Sign-In failed." };
     }
-  }, [router, auth]);
+  }, [auth]);
 
   const logout = useCallback(() => {
     if (!auth) return;
     signOut(auth).then(() => {
-      setUser(null);
-      router.push('/');
+      // No need to setUser here, onAuthStateChanged will handle it
+      // No need to router.push here, useEffect will handle it
     });
-  }, [router, auth]);
+  }, [auth]);
 
   const value = { isAuthenticated, user, isLoading, signup, login, loginWithGoogle, logout };
 
