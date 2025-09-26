@@ -4,10 +4,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
+type AuthResult = {
+  success: boolean;
+  message: string;
+};
+
+interface User {
+  name: string;
+  email: string;
+  password?: string; // Password should not be stored in JWT or client state long-term
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: () => void;
-  signup: () => void;
+  user: User | null;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  signup: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -17,62 +29,104 @@ const protectedRoutes = ['/home', '/dashboard', '/chat', '/voice-chat', '/video-
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // On initial load, check localStorage for auth status
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    setIsAuthenticated(authStatus);
-    setIsLoading(false);
+    try {
+      const authStatus = localStorage.getItem('isAuthenticated') === 'true';
+      const userData = localStorage.getItem('kai-user');
+      if (authStatus && userData) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(userData));
+      }
+    } catch (e) {
+      console.error("Could not parse auth data from localStorage", e);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     if (isLoading) {
-      return; // Wait until the initial auth check is complete
+      return; 
     }
 
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-    // If the user is on a protected route and is not authenticated, redirect to login
     if (isProtectedRoute && !isAuthenticated) {
       router.push('/');
     }
 
-    // If the user is authenticated and tries to access the login page, redirect to home
     if (isAuthenticated && pathname === '/') {
       router.push('/home');
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
-  const login = () => {
+  const signup = async (name: string, email: string, password: string): Promise<AuthResult> => {
+    if (!name || !email || !password) {
+      return { success: false, message: "Please fill out all fields." };
+    }
+    
+    const users = JSON.parse(localStorage.getItem('kai-users') || '[]');
+    const existingUser = users.find((u: User) => u.email === email);
+
+    if (existingUser) {
+      return { success: false, message: "An account with this email already exists." };
+    }
+
+    // In a real app, you would hash the password here.
+    const newUser = { name, email, password };
+    users.push(newUser);
+    localStorage.setItem('kai-users', JSON.stringify(users));
+    
+    const currentUser = { name, email };
     localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('kai-user', JSON.stringify(currentUser));
+    
     setIsAuthenticated(true);
+    setUser(currentUser);
+    
     router.push('/home');
+    return { success: true, message: `Welcome, ${name}!` };
   };
 
-  const signup = () => {
-    // In a real app, you'd save user details to a database here.
-    // For this mock, we'll just log them in.
-    localStorage.setItem('isAuthenticated', 'true');
-    setIsAuthenticated(true);
-    router.push('/home');
+  const login = async (email: string, password: string): Promise<AuthResult> => {
+    const users = JSON.parse(localStorage.getItem('kai-users') || '[]');
+    const foundUser = users.find((u: any) => u.email === email);
+
+    if (foundUser && foundUser.password === password) {
+      const currentUser = { name: foundUser.name, email: foundUser.email };
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('kai-user', JSON.stringify(currentUser));
+
+      setIsAuthenticated(true);
+      setUser(currentUser);
+      
+      router.push('/home');
+      return { success: true, message: "Welcome back!" };
+    }
+
+    return { success: false, message: "Invalid email or password." };
   };
+
 
   const logout = () => {
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('kai-user');
     setIsAuthenticated(false);
-    router.push('/'); // Redirect to login page on logout
+    setUser(null);
+    router.push('/');
   };
 
-  // While loading, don't render children to prevent flicker or showing wrong content
   if (isLoading) {
-    return null; // Or you can return a global loading spinner component
+    return null;
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, signup, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -18,14 +19,14 @@ const quickStats = [
 
 export function DashboardClient() {
     const router = useRouter();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
 
     return (
         <div>
             <div className="glassmorphism rounded-2xl p-6 mb-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                     <div>
-                        <h1 className="gradient-text text-3xl font-bold mb-2 font-headline">Welcome back, Alex! 👋</h1>
+                        <h1 className="gradient-text text-3xl font-bold mb-2 font-headline">Welcome back, {user?.name || 'friend'}! 👋</h1>
                         <p className="text-foreground/70 dark:text-foreground/60">Ready to continue your wellness journey?</p>
                     </div>
                     <div className="flex gap-2 sm:gap-3 mt-4 md:mt-0 flex-wrap">

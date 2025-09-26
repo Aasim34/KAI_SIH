@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,9 +12,8 @@ import { useAuth } from '@/hooks/use-auth';
 type AuthMode = 'signin' | 'signup';
 
 export function LoginClient() {
-  const router = useRouter();
-  const { toast } = useToast();
   const { login, signup } = useAuth();
+  const { toast } = useToast();
   
   const [mode, setMode] = useState<AuthMode>('signin');
   const [name, setName] = useState('');
@@ -23,29 +21,31 @@ export function LoginClient() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAuthAction = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAuthAction = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
 
-    // Mock authentication
-    setTimeout(() => {
-      if (mode === 'signin') {
-        if (email === 'user@kai.com' && password === '12345') {
-          login();
-          toast({ title: "Login Successful", description: "Welcome back!" });
-        } else {
-          toast({ variant: "destructive", title: "Login Failed", description: "Invalid email or password." });
-        }
-      } else { // Signup
-        if (name && email && password) {
-          signup();
-          toast({ title: "Sign-up Successful", description: `Welcome, ${name}!` });
-        } else {
-          toast({ variant: "destructive", title: "Sign-up Failed", description: "Please fill out all fields." });
-        }
-      }
-      setIsLoading(false);
-    }, 1000);
+    let result;
+    if (mode === 'signin') {
+      result = await login(email, password);
+    } else { // Signup
+      result = await signup(name, email, password);
+    }
+
+    setIsLoading(false);
+
+    if (result.success) {
+      toast({ 
+        title: mode === 'signin' ? 'Login Successful' : 'Sign-up Successful',
+        description: result.message 
+      });
+    } else {
+      toast({ 
+        variant: "destructive", 
+        title: mode === 'signin' ? 'Login Failed' : 'Sign-up Failed',
+        description: result.message 
+      });
+    }
   };
 
   const toggleMode = () => {
@@ -77,6 +77,7 @@ export function LoginClient() {
               className="mt-2 bg-background/50"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              disabled={isLoading}
             />
           </div>
         )}
@@ -86,10 +87,11 @@ export function LoginClient() {
             id="email" 
             type="email" 
             required 
-            placeholder={mode === 'signin' ? "user@kai.com" : "your@email.com"}
+            placeholder="your@email.com"
             className="mt-2 bg-background/50"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         <div>
@@ -98,10 +100,11 @@ export function LoginClient() {
             id="password" 
             type="password" 
             required 
-            placeholder={mode === 'signin' ? "12345" : "Create a password"}
+            placeholder="Your password"
             className="mt-2 bg-background/50"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         <Button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:shadow-lg transition-all transform hover:scale-105">
@@ -112,7 +115,7 @@ export function LoginClient() {
       <div className="mt-6 text-center">
         <p className="text-sm text-foreground/70 dark:text-foreground/60">
           {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
-          <Button variant="link" onClick={toggleMode} className="font-semibold text-primary pl-1">
+          <Button variant="link" onClick={toggleMode} disabled={isLoading} className="font-semibold text-primary pl-1">
             {mode === 'signin' ? 'Sign Up' : 'Sign In'}
           </Button>
         </p>
