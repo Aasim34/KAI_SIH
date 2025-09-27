@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewTab } from "./overview-tab";
 import { GroveTab } from "./grove-tab";
 import { InsightsTab } from "./insights-tab";
+import { ActivitiesTab } from "./activities-tab";
 import { useAuth } from "@/hooks/use-auth";
 
 const quickStats = [
@@ -50,10 +51,11 @@ export function DashboardClient() {
 
             <div className="glassmorphism rounded-2xl p-4 sm:p-6">
                 <Tabs defaultValue="overview">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 mb-6 h-auto bg-transparent p-0 gap-2">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 h-auto bg-transparent p-0 gap-2">
                         <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Overview</TabsTrigger>
                         <TabsTrigger value="grove" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Grove</TabsTrigger>
                         <TabsTrigger value="insights" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Insights</TabsTrigger>
+                        <TabsTrigger value="activities" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Activities</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
                         <OverviewTab />
@@ -63,6 +65,9 @@ export function DashboardClient() {
                     </TabsContent>
                     <TabsContent value="insights">
                         <InsightsTab />
+                    </TabsContent>
+                    <TabsContent value="activities">
+                        <ActivitiesTab />
                     </TabsContent>
                 </Tabs>
             </div>

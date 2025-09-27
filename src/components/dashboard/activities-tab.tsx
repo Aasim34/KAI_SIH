@@ -1,49 +1,95 @@
-import { Progress } from "@/components/ui/progress";
 
-const weeklyActivities = [
-    { name: "Breathing Exercises", count: 12 },
-    { name: "Mood Check-ins", count: 7 },
-    { name: "Journal Entries", count: 5 },
-];
+"use client";
 
-const wellnessScores = [
-    { name: "Stress Level", value: 25, label: "Low", color: "bg-green-500" },
-    { name: "Energy Level", value: 85, label: "High", color: "bg-blue-500" },
-    { name: "Focus Level", value: 60, label: "Medium", color: "bg-purple-500" },
-];
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { RotateCcw } from 'lucide-react';
+
+const Square = ({ value, onClick }: { value: string | null, onClick: () => void }) => {
+  return (
+    <button 
+      onClick={onClick} 
+      className={cn(
+        "w-20 h-20 md:w-24 md:h-24 bg-background/50 rounded-lg flex items-center justify-center text-4xl md:text-5xl font-bold transition-all duration-200 ease-in-out transform hover:scale-105",
+        value === 'X' ? 'text-primary' : 'text-green-500'
+      )}
+    >
+      {value}
+    </button>
+  );
+};
+
+const calculateWinner = (squares: (string | null)[]) => {
+  const lines = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+    [0, 4, 8], [2, 4, 6]             // diagonals
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+};
 
 export function ActivitiesTab() {
+  const [board, setBoard] = useState<(string | null)[]>(Array(9).fill(null));
+  const [isXNext, setIsXNext] = useState(true);
+  
+  const winner = calculateWinner(board);
+  const isBoardFull = board.every(square => square !== null);
+
+  const handleClick = (i: number) => {
+    if (winner || board[i]) {
+      return;
+    }
+    const newBoard = board.slice();
+    newBoard[i] = isXNext ? 'X' : 'O';
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
+  };
+
+  const handleReset = () => {
+    setBoard(Array(9).fill(null));
+    setIsXNext(true);
+  };
+
+  let status;
+  if (winner) {
+    status = `Winner: ${winner}`;
+  } else if (isBoardFull) {
+    status = 'It\'s a Draw!';
+  } else {
+    status = `Next player: ${isXNext ? 'X' : 'O'}`;
+  }
+
   return (
-    <div className="space-y-8">
-        <h3 className="text-xl font-bold font-headline">Activity Statistics</h3>
-        <div className="grid md:grid-cols-2 gap-6">
-            <div className="glassmorphism p-6 rounded-xl">
-                <h4 className="font-semibold mb-4 font-headline">This Week's Activities</h4>
-                <div className="space-y-3">
-                    {weeklyActivities.map(activity => (
-                        <div key={activity.name} className="flex justify-between items-center text-sm">
-                            <span className="text-foreground/80 dark:text-foreground/70">{activity.name}</span>
-                            <span className="font-semibold">{activity.count}</span>
-                        </div>
+    <div className="space-y-8 flex flex-col items-center">
+        <h3 className="text-xl font-bold font-headline">Activities & Games</h3>
+        
+        <Card className="w-full max-w-md glassmorphism">
+            <CardHeader>
+                <CardTitle className="text-center font-headline gradient-text">Tic-Tac-Toe</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center space-y-4">
+                <div className="grid grid-cols-3 gap-2">
+                    {board.map((_, i) => (
+                        <Square key={i} value={board[i]} onClick={() => handleClick(i)} />
                     ))}
                 </div>
-            </div>
-            
-            <div className="glassmorphism p-6 rounded-xl">
-                <h4 className="font-semibold mb-4 font-headline">Live Wellness Scores</h4>
-                <div className="space-y-4">
-                    {wellnessScores.map(score => (
-                        <div key={score.name}>
-                            <div className="flex justify-between mb-1">
-                                <span className="text-sm">{score.name}</span>
-                                <span className="text-sm font-medium">{score.label}</span>
-                            </div>
-                            <Progress value={score.value} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-purple-500 [&>div]:to-blue-500" />
-                        </div>
-                    ))}
+                <div className="text-lg font-semibold text-foreground/80 dark:text-foreground/70 h-8">
+                    {status}
                 </div>
-            </div>
-        </div>
+                <Button onClick={handleReset} variant="outline" className="gap-2 bg-background/50">
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Game
+                </Button>
+            </CardContent>
+        </Card>
     </div>
   );
 }
