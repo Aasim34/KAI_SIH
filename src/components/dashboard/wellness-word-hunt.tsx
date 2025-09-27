@@ -8,20 +8,29 @@ import { cn } from '@/lib/utils';
 import { RotateCcw, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const words = [
-  { word: "HOPE", found: false },
-  { word: "CALM", found: false },
-  { word: "PEACE", found: false },
-  { word: "FOCUS", found: false },
-  { word: "JOY", found: false },
-];
+const ALL_WORDS = ["HOPE", "CALM", "PEACE", "FOCUS", "JOY", "BREATHE", "SMILE", "RELAX", "GRACE", "KIND", "LOVE", "ZEN", "FLOW"];
+const WORD_COUNT = 5;
 
 const gridSize = 10;
+
+const shuffleArray = (array: string[]) => {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
 
 // This is a simplified placement logic. A more robust solution would handle overlaps and reversals.
 const generateGrid = () => {
     let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
-    let localWords = words.map(w => ({ ...w, found: false }));
+
+    const shuffledWords = shuffleArray([...ALL_WORDS]);
+    const selectedWords = shuffledWords.slice(0, WORD_COUNT);
+
+    let localWords = selectedWords.map(word => ({ word, found: false }));
     const placedWords = [];
 
     for (const { word } of localWords) {
@@ -84,7 +93,7 @@ const generateGrid = () => {
 export function WellnessWordHunt() {
   const { toast } = useToast();
   const [grid, setGrid] = useState<string[][]>([]);
-  const [wordList, setWordList] = useState(words);
+  const [wordList, setWordList] = useState<{word: string, found: boolean}[]>([]);
   const [selectedCells, setSelectedCells] = useState<{ r: number; c: number }[]>([]);
   const [foundCells, setFoundCells] = useState<{ r: number; c: number }[]>([]);
   const [isWon, setIsWon] = useState(false);
