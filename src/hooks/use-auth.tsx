@@ -138,26 +138,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!auth) return { success: false, message: "Authentication not ready." };
     const provider = new GoogleAuthProvider();
     
-    const isMobile = /Mobi/i.test(window.navigator.userAgent);
-
-    if (isMobile) {
-        try {
-            await signInWithRedirect(auth, provider);
-        } catch (error: any) {
-            console.error("Google Sign-In with redirect error:", error);
-            return { success: false, message: error.message || "Google Sign-In failed." };
+    try {
+        const userCredential = await signInWithPopup(auth, provider);
+        setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
+        return { success: true, message: "Signed in with Google successfully!" };
+    } catch (error: any) {
+        if (error.code === 'auth/popup-closed-by-user') {
+          return { success: false, message: 'Sign-in cancelled.' };
         }
-    } else {
-        try {
-            const userCredential = await signInWithPopup(auth, provider);
-            setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
-            return { success: true, message: "Signed in with Google successfully!" };
-        } catch (error: any) {
-            if (error.code === 'auth/popup-closed-by-user') {
-              return { success: false, message: 'Sign-in cancelled.' };
-            }
-            return { success: false, message: error.message || "Google Sign-In failed." };
-        }
+        return { success: false, message: error.message || "Google Sign-In failed." };
     }
   }, [auth]);
 
