@@ -18,43 +18,57 @@ const words = [
 
 const gridSize = 10;
 
-// Function to place words in the grid
+// This is a simplified placement logic. A more robust solution would handle overlaps and reversals.
 const generateGrid = () => {
     let grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
     let localWords = words.map(w => ({ ...w, found: false }));
+    const placedWords = [];
 
-    localWords.forEach(({ word }) => {
+    for (const { word } of localWords) {
         let placed = false;
-        while (!placed) {
+        let attempts = 0;
+        while (!placed && attempts < 100) {
             const direction = Math.random() > 0.5 ? 'horizontal' : 'vertical';
             const row = Math.floor(Math.random() * gridSize);
             const col = Math.floor(Math.random() * gridSize);
+            const wordPath = [];
 
             if (direction === 'horizontal' && col + word.length <= gridSize) {
                 let canPlace = true;
                 for (let i = 0; i < word.length; i++) {
-                    if (grid[row][col + i] !== '') canPlace = false;
+                    if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) {
+                      canPlace = false;
+                      break;
+                    }
                 }
                 if (canPlace) {
                     for (let i = 0; i < word.length; i++) {
                         grid[row][col + i] = word[i];
+                        wordPath.push({ r: row, c: col + i });
                     }
+                    placedWords.push({ word, path: wordPath });
                     placed = true;
                 }
             } else if (direction === 'vertical' && row + word.length <= gridSize) {
-                let canPlace = true;
+                 let canPlace = true;
                 for (let i = 0; i < word.length; i++) {
-                    if (grid[row + i][col] !== '') canPlace = false;
+                    if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) {
+                      canPlace = false;
+                      break;
+                    }
                 }
                 if (canPlace) {
                     for (let i = 0; i < word.length; i++) {
                         grid[row + i][col] = word[i];
+                        wordPath.push({ r: row + i, c: col });
                     }
+                    placedWords.push({ word, path: wordPath });
                     placed = true;
                 }
             }
+            attempts++;
         }
-    });
+    }
 
     // Fill remaining spots with random letters
     for (let r = 0; r < gridSize; r++) {
@@ -72,6 +86,7 @@ export function WellnessWordHunt() {
   const [grid, setGrid] = useState<string[][]>([]);
   const [wordList, setWordList] = useState(words);
   const [selectedCells, setSelectedCells] = useState<{ r: number; c: number }[]>([]);
+  const [foundCells, setFoundCells] = useState<{ r: number; c: number }[]>([]);
   const [isWon, setIsWon] = useState(false);
 
   const newGame = useCallback(() => {
@@ -79,6 +94,7 @@ export function WellnessWordHunt() {
     setGrid(newGrid);
     setWordList(localWords);
     setSelectedCells([]);
+    setFoundCells([]);
     setIsWon(false);
   }, []);
 
@@ -98,9 +114,17 @@ export function WellnessWordHunt() {
   }, [wordList, toast]);
 
   const handleCellClick = (r: number, c: number) => {
-    if (isWon) return;
+    if (isWon || foundCells.some(cell => cell.r === r && cell.c === c)) return;
 
-    const newSelectedCells = [...selectedCells, { r, c }];
+    const isAlreadySelected = selectedCells.some(cell => cell.r === r && cell.c === c);
+    let newSelectedCells;
+
+    if (isAlreadySelected) {
+        newSelectedCells = selectedCells.filter(cell => !(cell.r === r && cell.c === c));
+    } else {
+        newSelectedCells = [...selectedCells, { r, c }];
+    }
+    
     setSelectedCells(newSelectedCells);
 
     const selectedWord = newSelectedCells.map(({ r, c }) => grid[r][c]).join('');
@@ -108,18 +132,19 @@ export function WellnessWordHunt() {
 
     if (foundWord) {
       setWordList(prev => prev.map(w => w.word === foundWord.word ? { ...w, found: true } : w));
+      setFoundCells(prev => [...prev, ...newSelectedCells]);
       toast({ title: `You found "${foundWord.word}"!`, className: 'bg-primary/20 border-primary/30' });
       setSelectedCells([]);
     } else {
-      // Check if current selection is a prefix of any word
-      const isPrefix = wordList.some(w => w.word.startsWith(selectedWord));
-      if (!isPrefix) {
+      const isPrefix = wordList.some(w => !w.found && w.word.startsWith(selectedWord));
+      if (!isPrefix && selectedWord.length > 0) {
         setTimeout(() => setSelectedCells([]), 300);
       }
     }
   };
   
   const isCellSelected = (r: number, c: number) => selectedCells.some(cell => cell.r === r && cell.c === c);
+  const isCellFound = (r: number, c: number) => foundCells.some(cell => cell.r === r && cell.c === c);
 
   return (
     <Card className="w-full max-w-lg mx-auto glassmorphism border-2 border-primary/20 shadow-2xl shadow-primary/10">
@@ -135,9 +160,14 @@ export function WellnessWordHunt() {
                     key={`${r}-${c}`}
                     onClick={() => handleCellClick(r, c)}
                     className={cn(
-                    "w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-sm md:text-base font-bold rounded-md transition-colors duration-150",
-                    isCellSelected(r, c) ? "bg-primary text-primary-foreground scale-110" : "bg-white/10 hover:bg-white/20"
+                        "w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-sm md:text-base font-bold rounded-md transition-colors duration-150",
+                        {
+                            "bg-primary text-primary-foreground scale-110": isCellSelected(r, c),
+                            "bg-green-500/80 text-white": isCellFound(r, c),
+                            "bg-white/10 hover:bg-white/20": !isCellSelected(r, c) && !isCellFound(r, c)
+                        }
                     )}
+                    disabled={isCellFound(r,c)}
                 >
                     {letter}
                 </button>
