@@ -11,10 +11,10 @@ import { ActivitiesTab } from "./activities-tab";
 import { useAuth } from "@/hooks/use-auth";
 
 const quickStats = [
-    { label: "Streak Days", value: "7" },
-    { label: "Grove Level", value: "3" },
-    { label: "Activities", value: "24" },
-    { label: "Avg Mood", value: "8.2" },
+    { label: "Streak Days", value: "7", emoji: "🔥" },
+    { label: "Grove Level", value: "3", emoji: "🌳" },
+    { label: "Activities", value: "24", emoji: "🎯" },
+    { label: "Avg Mood", value: "8.2", emoji: "😊" },
 ];
 
 export function DashboardClient() {
@@ -42,7 +42,10 @@ export function DashboardClient() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {quickStats.map(stat => (
                         <div key={stat.label} className="glassmorphism p-4 rounded-xl text-center">
-                            <div className="text-2xl font-bold gradient-text">{stat.value}</div>
+                            <div className="text-2xl font-bold gradient-text flex items-center justify-center gap-2">
+                                <span>{stat.emoji}</span>
+                                <span>{stat.value}</span>
+                            </div>
                             <div className="text-sm text-foreground/70 dark:text-foreground/60">{stat.label}</div>
                         </div>
                     ))}
