@@ -6,15 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RotateCcw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type PlayerSymbol = 'X' | 'O';
 type BoardState = (PlayerSymbol | null)[];
 
 const initialBoard = Array(9).fill(null);
 
-const calculateWinner = (squares: BoardState) => {
+const calculateWinner = (squares: BoardState): { winner: PlayerSymbol | null; line: number[] | null } => {
   const lines = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
     [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -23,20 +21,20 @@ const calculateWinner = (squares: BoardState) => {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], line: lines[i] };
     }
   }
-  return null;
+  return { winner: null, line: null };
 };
 
-const Square = ({ value, onClick, isWinning }: { value: string | null, onClick: () => void, isWinning: boolean }) => {
+const Square = ({ value, onClick, isWinning }: { value: PlayerSymbol | null, onClick: () => void, isWinning: boolean }) => {
   return (
     <button
       onClick={onClick}
       className={cn(
-        "w-20 h-20 md:w-24 md:h-24 bg-background/50 rounded-lg flex items-center justify-center text-4xl md:text-5xl font-bold transition-all duration-200 ease-in-out transform hover:scale-105",
-        value === 'X' ? 'text-primary' : 'text-green-500',
-        isWinning && 'bg-yellow-400/50'
+        "w-20 h-20 md:w-24 md:h-24 bg-white/10 rounded-lg flex items-center justify-center text-4xl md:text-5xl font-bold transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-white/20",
+        value === 'X' ? 'text-primary' : 'text-green-400',
+        isWinning && 'bg-primary/30'
       )}
     >
       {value}
@@ -46,18 +44,17 @@ const Square = ({ value, onClick, isWinning }: { value: string | null, onClick: 
 
 
 export function ActivitiesTab() {
-  const { toast } = useToast();
   const [board, setBoard] = useState<BoardState>(initialBoard);
   const [turn, setTurn] = useState<PlayerSymbol>('X'); // X is human, O is computer
-  const [winner, setWinner] = useState<PlayerSymbol | 'draw' | null>(null);
+  const [gameResult, setGameResult] = useState<{ winner: PlayerSymbol | 'draw' | null; line: number[] | null }>({ winner: null, line: null });
 
-  const computerMove = (currentBoard: BoardState) => {
+  const computerMove = (currentBoard: BoardState): number => {
     // 1. Check if computer can win
     for (let i = 0; i < 9; i++) {
       if (!currentBoard[i]) {
         const newBoard = [...currentBoard];
         newBoard[i] = 'O';
-        if (calculateWinner(newBoard) === 'O') {
+        if (calculateWinner(newBoard).winner === 'O') {
           return i;
         }
       }
@@ -68,12 +65,12 @@ export function ActivitiesTab() {
       if (!currentBoard[i]) {
         const newBoard = [...currentBoard];
         newBoard[i] = 'X';
-        if (calculateWinner(newBoard) === 'X') {
+        if (calculateWinner(newBoard).winner === 'X') {
           return i;
         }
       }
     }
-
+    
     // 3. Take center if available
     if (!currentBoard[4]) {
       return 4;
@@ -93,25 +90,26 @@ export function ActivitiesTab() {
       return availableSides[Math.floor(Math.random() * availableSides.length)];
     }
 
-    // Should not happen in a normal game
-    return currentBoard.findIndex(sq => sq === null);
+    // Fallback: take first available spot
+    const move = currentBoard.findIndex(sq => sq === null);
+    return move !== -1 ? move : -1;
   };
   
   useEffect(() => {
-    if (turn === 'O' && !winner) {
+    if (turn === 'O' && !gameResult.winner) {
         const timeoutId = setTimeout(() => {
             const bestMove = computerMove(board);
             if (bestMove !== -1) {
                 handleClick(bestMove, 'O');
             }
-        }, 500); // Add a small delay for computer move
+        }, 600); // Add a small delay for computer move
         return () => clearTimeout(timeoutId);
     }
-  }, [turn, board, winner]);
+  }, [turn, board, gameResult.winner]);
 
 
   const handleClick = (i: number, player: PlayerSymbol) => {
-    if (winner || board[i] || player !== turn) {
+    if (gameResult.winner || board[i] || player !== turn) {
       return;
     }
 
@@ -119,11 +117,11 @@ export function ActivitiesTab() {
     newBoard[i] = player;
     setBoard(newBoard);
 
-    const newWinner = calculateWinner(newBoard);
-    if (newWinner) {
-      setWinner(newWinner);
+    const { winner, line } = calculateWinner(newBoard);
+    if (winner) {
+      setGameResult({ winner, line });
     } else if (newBoard.every(square => square !== null)) {
-      setWinner('draw');
+      setGameResult({ winner: 'draw', line: null });
     } else {
       setTurn(player === 'X' ? 'O' : 'X');
     }
@@ -132,48 +130,48 @@ export function ActivitiesTab() {
   const handleReset = () => {
     setBoard(initialBoard);
     setTurn('X');
-    setWinner(null);
+    setGameResult({ winner: null, line: null });
   };
 
   let status;
-  if (winner) {
-    if (winner === 'draw') {
+  if (gameResult.winner) {
+    if (gameResult.winner === 'draw') {
       status = "It's a Draw!";
     } else {
-      status = `Winner: ${winner === 'X' ? 'You' : 'Computer'}`;
+      status = `${gameResult.winner === 'X' ? 'You Win!' : 'Computer Wins!'}`;
     }
   } else {
-    status = `Turn: ${turn === 'X' ? 'Your' : 'Computer'}`;
+    status = `${turn === 'X' ? 'Your Turn' : "Computer's Turn"}`;
   }
 
   return (
     <div className="space-y-8 flex flex-col items-center">
-        <h3 className="text-xl font-bold font-headline">Mindful Tic-Tac-Toe</h3>
-        
-        <Card className="w-full max-w-md glassmorphism">
+        <Card className="w-full max-w-md glassmorphism border-2 border-primary/20 shadow-2xl shadow-primary/10">
             <CardHeader>
-                <CardTitle className="text-center font-headline gradient-text">Tic-Tac-Toe</CardTitle>
+                <CardTitle className="text-center font-headline gradient-text text-2xl">Mindful Tic-Tac-Toe</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center space-y-4">
-                <div className="flex gap-4 mb-4 text-sm">
-                    <p className="text-foreground/80 dark:text-foreground/70">You are <span className="font-bold text-primary">'X'</span> and the computer is <span className="font-bold text-green-500">'O'</span>.</p>
+            <CardContent className="flex flex-col items-center space-y-6">
+                <div className="flex gap-4 text-sm text-center">
+                    <p className="text-foreground/80 dark:text-foreground/70">You are <span className="font-bold text-primary">'X'</span> and the computer is <span className="font-bold text-green-400">'O'</span>.</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                    {board.map((square, i) => (
-                        <Square 
-                            key={i} 
-                            value={square} 
-                            onClick={() => handleClick(i, 'X')} 
-                            isWinning={false} // Add logic for winning line highlight later
-                        />
-                    ))}
+                <div className="p-2 bg-background/30 rounded-2xl border border-white/20">
+                  <div className="grid grid-cols-3 gap-2">
+                      {board.map((square, i) => (
+                          <Square 
+                              key={i} 
+                              value={square} 
+                              onClick={() => handleClick(i, 'X')} 
+                              isWinning={gameResult.line?.includes(i) ?? false}
+                          />
+                      ))}
+                  </div>
                 </div>
-                <div className="text-lg font-semibold text-foreground/80 dark:text-foreground/70 h-8">
+                <div className="text-xl font-semibold text-foreground/80 dark:text-foreground/70 h-8">
                     {status}
                 </div>
                 <div className="flex gap-4">
-                   <Button onClick={handleReset} variant="outline" className="gap-2 bg-background/50">
+                   <Button onClick={handleReset} variant="outline" className="gap-2 bg-background/50 hover:bg-primary/10 hover:border-primary/50 transition-colors">
                         <RotateCcw className="w-4 h-4" />
                         Reset Game
                     </Button>
