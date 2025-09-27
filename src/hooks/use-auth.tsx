@@ -3,30 +3,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { 
-  getAuth, 
-  onAuthStateChanged, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  updateProfile,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  User as FirebaseUser,
-  Auth
-} from 'firebase/auth';
-
-const firebaseConfig = {
-  "projectId": "studio-5455551154-a5d2e",
-  "appId": "1:901983621273:web:852f22e2b3921e03dc2808",
-  "apiKey": "AIzaSyAMn8ElSQn1Zbu6bY2vJNdck8VnBH2Og4c",
-  "authDomain": "studio-5455551154-a5d2e.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "901983621273"
-};
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, GoogleAuthProvider, signInWithPopup, User as FirebaseUser } from 'firebase/auth';
+import { auth } from '@/lib/firebase'; // Correctly import from your new firebase.ts
 
 type AuthResult = {
   success: boolean;
@@ -34,6 +12,7 @@ type AuthResult = {
 };
 
 interface User {
+  uid: string;
   name: string | null;
   email: string | null;
 }
@@ -44,7 +23,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string, dateOfBirth?: Date) => Promise<AuthResult>;
-  loginWithGoogle: () => Promise<AuthResult | void>;
+  loginWithGoogle: () => Promise<AuthResult>;
   logout: () => void;
 }
 
@@ -55,41 +34,20 @@ const protectedRoutes = ['/home', '/dashboard', '/chat', '/voice-chat', '/video-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [auth, setAuth] = useState<Auth | null>(null);
   const router = useRouter();
   const pathname = usePathname();
   
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    let firebaseApp: FirebaseApp;
-    if (!getApps().length) {
-      firebaseApp = initializeApp(firebaseConfig);
-    } else {
-      firebaseApp = getApps()[0];
-    }
-    const authInstance = getAuth(firebaseApp);
-    setAuth(authInstance);
-
-    const unsubscribe = onAuthStateChanged(authInstance, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setIsLoading(true);
       if (firebaseUser) {
-        setUser({ name: firebaseUser.displayName, email: firebaseUser.email });
+        setUser({ uid: firebaseUser.uid, name: firebaseUser.displayName, email: firebaseUser.email });
       } else {
         setUser(null);
       }
       setIsLoading(false);
-    });
-
-    getRedirectResult(authInstance).then((result) => {
-      setIsLoading(true);
-      if (result && result.user) {
-        setUser({ name: result.user.displayName, email: result.user.email });
-      }
-      setIsLoading(false);
-    }).catch(error => {
-        console.error("Error with getRedirectResult:", error);
-        setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -109,13 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [isAuthenticated, isLoading, pathname, router]);
 
   const signup = useCallback(async (name: string, email: string, password: string, dateOfBirth?: Date): Promise<AuthResult> => {
-    if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
-      // Here you would typically save the dateOfBirth to your database
-      // For example: await saveUserProfile({ uid: userCredential.user.uid, dateOfBirth });
-      setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
+      setUser({ uid: userCredential.user.uid, name: userCredential.user.displayName, email: userCredential.user.email });
       return { success: true, message: `Welcome, ${name}!` };
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
@@ -123,44 +78,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return { success: false, message: error.message || "Sign-up failed." };
     }
-  }, [auth]);
+  }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
-    if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
+      setUser({ uid: userCredential.user.uid, name: userCredential.user.displayName, email: userCredential.user.email });
       return { success: true, message: "Welcome back!" };
     } catch (error: any) {
       return { success: false, message: "Invalid email or password." };
     }
-  }, [auth]);
+  }, []);
   
-  const loginWithGoogle = useCallback(async (): Promise<AuthResult | void> => {
-    if (!auth) return { success: false, message: "Authentication not ready." };
+  const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
     const provider = new GoogleAuthProvider();
-    
     try {
-        const userCredential = await signInWithPopup(auth, provider);
-        setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
-        return { success: true, message: "Signed in with Google successfully!" };
+      const userCredential = await signInWithPopup(auth, provider);
+      setUser({ uid: userCredential.user.uid, name: userCredential.user.displayName, email: userCredential.user.email });
+      return { success: true, message: "Signed in with Google successfully!" };
     } catch (error: any) {
-        if (error.code === 'auth/popup-closed-by-user') {
-          return { success: false, message: 'Sign-in cancelled.' };
-        }
-        return { success: false, message: error.message || "Google Sign-In failed." };
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, message: 'Sign-in cancelled.' };
+      }
+      return { success: false, message: error.message || "Google Sign-In failed." };
     }
-  }, [auth]);
+  }, []);
 
   const logout = useCallback(async () => {
-    if (!auth) return;
     try {
       await signOut(auth);
       router.push('/');
     } catch (error) {
       console.error("Error signing out:", error);
     }
-  }, [auth, router]);
+  }, [router]);
 
   const value = { isAuthenticated, user, isLoading, signup, login, loginWithGoogle, logout };
 
@@ -178,5 +129,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    
