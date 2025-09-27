@@ -155,8 +155,8 @@ export function ActivitiesTab() {
                     <p className="text-foreground/80 dark:text-foreground/70">You are <span className="font-bold text-primary">'X'</span> and the computer is <span className="font-bold text-green-400">'O'</span>.</p>
                 </div>
 
-                <div className="p-2 bg-background/30 rounded-2xl border border-white/20">
-                  <div className="grid grid-cols-3 gap-2">
+                <div className="p-4 bg-background/30 rounded-2xl border-2 border-primary/20 shadow-inner">
+                  <div className="grid grid-cols-3 gap-3">
                       {board.map((square, i) => (
                           <Square 
                               key={i} 
