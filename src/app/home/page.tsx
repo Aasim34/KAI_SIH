@@ -71,7 +71,7 @@ export default function HomePage() {
   return (
     <div className="pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12 relative">
+        <div className="text-center mb-16 relative">
           <div className='relative z-10'>
               <h1 className="gradient-text text-4xl md:text-5xl font-bold mb-4 font-headline">
                 Welcome to Kai
@@ -86,8 +86,8 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-center mb-8 gradient-text font-headline">How Kai Helps You</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {flowSteps.map((step, index) => (
-                    <div key={index} className="relative">
-                        <Card className="glassmorphism h-full text-center p-6">
+                    <div key={index} className="relative group">
+                        <Card className="glassmorphism h-full text-center p-6 transition-transform transform group-hover:scale-105 duration-300">
                             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                 {step.icon}
                             </div>
