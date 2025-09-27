@@ -62,50 +62,15 @@ export function ActivitiesTab() {
   const [gameResult, setGameResult] = useState<{ winner: PlayerSymbol | 'draw' | null; line: number[] | null }>({ winner: null, line: null });
 
   const computerMove = (currentBoard: BoardState): number => {
-    // 1. Check if computer can win
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
-        const newBoard = [...currentBoard];
-        newBoard[i] = 'O';
-        if (calculateWinner(newBoard).winner === 'O') {
-          return i;
-        }
-      }
+    const availableSpots = currentBoard
+        .map((spot, index) => (spot === null ? index : null))
+        .filter(index => index !== null) as number[];
+
+    if (availableSpots.length > 0) {
+        return availableSpots[Math.floor(Math.random() * availableSpots.length)];
     }
 
-    // 2. Check if player can win and block
-    for (let i = 0; i < 9; i++) {
-      if (!currentBoard[i]) {
-        const newBoard = [...currentBoard];
-        newBoard[i] = 'X';
-        if (calculateWinner(newBoard).winner === 'X') {
-          return i;
-        }
-      }
-    }
-    
-    // 3. Take center if available
-    if (!currentBoard[4]) {
-      return 4;
-    }
-
-    // 4. Take a random corner
-    const corners = [0, 2, 6, 8];
-    const availableCorners = corners.filter(i => !currentBoard[i]);
-    if (availableCorners.length > 0) {
-      return availableCorners[Math.floor(Math.random() * availableCorners.length)];
-    }
-
-    // 5. Take a random side
-    const sides = [1, 3, 5, 7];
-    const availableSides = sides.filter(i => !currentBoard[i]);
-    if (availableSides.length > 0) {
-      return availableSides[Math.floor(Math.random() * availableSides.length)];
-    }
-
-    // Fallback: take first available spot
-    const move = currentBoard.findIndex(sq => sq === null);
-    return move !== -1 ? move : -1;
+    return -1; // Should not happen if game is not over
   };
   
   useEffect(() => {
