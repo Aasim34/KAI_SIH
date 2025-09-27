@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewTab } from "./overview-tab";
-import { ActivitiesTab } from "./activities-tab";
 import { GroveTab } from "./grove-tab";
 import { InsightsTab } from "./insights-tab";
 import { useAuth } from "@/hooks/use-auth";
@@ -51,17 +50,13 @@ export function DashboardClient() {
 
             <div className="glassmorphism rounded-2xl p-4 sm:p-6">
                 <Tabs defaultValue="overview">
-                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 h-auto bg-transparent p-0 gap-2">
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 mb-6 h-auto bg-transparent p-0 gap-2">
                         <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Overview</TabsTrigger>
-                        <TabsTrigger value="activities" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Activities</TabsTrigger>
                         <TabsTrigger value="grove" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Grove</TabsTrigger>
                         <TabsTrigger value="insights" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md">Insights</TabsTrigger>
                     </TabsList>
                     <TabsContent value="overview">
                         <OverviewTab />
-                    </TabsContent>
-                    <TabsContent value="activities">
-                        <ActivitiesTab />
                     </TabsContent>
                     <TabsContent value="grove">
                         <GroveTab />
