@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RotateCcw } from 'lucide-react';
 import { EmojiMemoryGame } from './emoji-memory-game';
+import { WellnessWordHunt } from './wellness-word-hunt';
 
 type PlayerSymbol = 'X' | 'O';
 type BoardState = (PlayerSymbol | null)[];
@@ -158,6 +159,8 @@ export function ActivitiesTab() {
         </Card>
         
         <EmojiMemoryGame />
+
+        <WellnessWordHunt />
     </div>
   );
 }
