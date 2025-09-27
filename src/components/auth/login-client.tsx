@@ -8,7 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '../icons/logo';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Calendar } from '../ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -31,6 +35,7 @@ export function LoginClient() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>();
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const handleEmailAuthAction = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +46,16 @@ export function LoginClient() {
     if (mode === 'signin') {
       result = await login(email, password);
     } else { // Signup
-      result = await signup(name, email, password);
+      if (!dateOfBirth) {
+        toast({
+            variant: "destructive",
+            title: 'Sign-up Failed',
+            description: "Please select your date of birth.",
+        });
+        setIsActionLoading(false);
+        return;
+      }
+      result = await signup(name, email, password, dateOfBirth);
     }
 
     setIsActionLoading(false);
@@ -81,6 +95,7 @@ export function LoginClient() {
     setName('');
     setEmail('');
     setPassword('');
+    setDateOfBirth(undefined);
   }
   
   const isLoading = isAuthLoading || isActionLoading;
@@ -107,18 +122,49 @@ export function LoginClient() {
 
       <form onSubmit={handleEmailAuthAction} className="space-y-6">
         {mode === 'signup' && (
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input 
-              id="name" 
-              type="text" 
-              required 
-              placeholder="Your Name" 
-              className="mt-2 bg-background/50"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isLoading}
-            />
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input 
+                id="name" 
+                type="text" 
+                required 
+                placeholder="Your Name" 
+                className="mt-2 bg-background/50"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="dob">Date of Birth</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-2 bg-background/50",
+                      !dateOfBirth && "text-muted-foreground"
+                    )}
+                    disabled={isLoading}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateOfBirth}
+                    onSelect={setDateOfBirth}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         )}
         <div>

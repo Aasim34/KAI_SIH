@@ -43,7 +43,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
-  signup: (name: string, email: string, password: string) => Promise<AuthResult>;
+  signup: (name: string, email: string, password: string, dateOfBirth?: Date) => Promise<AuthResult>;
   loginWithGoogle: () => Promise<AuthResult | void>;
   logout: () => void;
 }
@@ -108,11 +108,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, isLoading, pathname, router]);
 
-  const signup = useCallback(async (name: string, email: string, password: string): Promise<AuthResult> => {
+  const signup = useCallback(async (name: string, email: string, password: string, dateOfBirth?: Date): Promise<AuthResult> => {
     if (!auth) return { success: false, message: "Authentication not ready." };
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      // Here you would typically save the dateOfBirth to your database
+      // For example: await saveUserProfile({ uid: userCredential.user.uid, dateOfBirth });
       setUser({ name: userCredential.user.displayName, email: userCredential.user.email });
       return { success: true, message: `Welcome, ${name}!` };
     } catch (error: any) {
