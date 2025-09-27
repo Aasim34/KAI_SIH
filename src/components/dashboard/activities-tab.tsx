@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { RotateCcw } from 'lucide-react';
+import { EmojiMemoryGame } from './emoji-memory-game';
 
 type PlayerSymbol = 'X' | 'O';
 type BoardState = (PlayerSymbol | null)[];
@@ -123,8 +124,8 @@ export function ActivitiesTab() {
   }
 
   return (
-    <div className="space-y-8 flex flex-col items-center">
-        <Card className="w-full max-w-md glassmorphism border-2 border-primary/20 shadow-2xl shadow-primary/10">
+    <div className="space-y-8">
+        <Card className="w-full max-w-md mx-auto glassmorphism border-2 border-primary/20 shadow-2xl shadow-primary/10">
             <CardHeader>
                 <CardTitle className="text-center font-headline gradient-text text-2xl">Mindful Tic-Tac-Toe</CardTitle>
             </CardHeader>
@@ -155,6 +156,8 @@ export function ActivitiesTab() {
                 </div>
             </CardContent>
         </Card>
+        
+        <EmojiMemoryGame />
     </div>
   );
 }
