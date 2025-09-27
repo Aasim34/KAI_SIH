@@ -28,6 +28,18 @@ const calculateWinner = (squares: BoardState): { winner: PlayerSymbol | null; li
 };
 
 const Square = ({ value, onClick, isWinning, index }: { value: PlayerSymbol | null, onClick: () => void, isWinning: boolean, index: number }) => {
+  const borderClasses = [
+      "border-b-2 border-r-2", // 0
+      "border-b-2 border-r-2", // 1
+      "border-b-2",             // 2
+      "border-b-2 border-r-2", // 3
+      "border-b-2 border-r-2", // 4
+      "border-b-2",             // 5
+      "border-r-2",             // 6
+      "border-r-2",             // 7
+      "",                       // 8
+  ];
+
   return (
     <button
       onClick={onClick}
@@ -35,13 +47,7 @@ const Square = ({ value, onClick, isWinning, index }: { value: PlayerSymbol | nu
         "w-20 h-20 md:w-24 md:h-24 bg-white/10 flex items-center justify-center text-4xl md:text-5xl font-bold transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-white/20 border-primary/20",
         value === 'X' ? 'text-primary' : 'text-green-400',
         isWinning && 'bg-primary/30',
-        index < 3 && "border-b-2", // Top row
-        index > 5 && "border-t-2", // Bottom row
-        index % 3 === 0 && "border-r-2", // Left column
-        index % 3 === 2 && "border-l-2", // Right column
-        index === 1 && "border-x-2",
-        index === 4 && "border-2",
-        index === 7 && "border-x-2",
+        borderClasses[index]
       )}
     >
       {value}
@@ -145,7 +151,7 @@ export function ActivitiesTab() {
     if (gameResult.winner === 'draw') {
       status = "It's a Draw!";
     } else {
-      status = `${gameResult.winner === 'X' ? 'You Win!' : 'Computer Wins!'}`;
+      status = gameResult.winner === 'X' ? 'Congratulations, you win!' : 'Good game! Better luck next time.';
     }
   } else {
     status = `${turn === 'X' ? 'Your Turn' : "Computer's Turn"}`;
@@ -162,18 +168,16 @@ export function ActivitiesTab() {
                     <p className="text-foreground/80 dark:text-foreground/70">You are <span className="font-bold text-primary">'X'</span> and the computer is <span className="font-bold text-green-400">'O'</span>.</p>
                 </div>
 
-                <div className="p-2 bg-background/30 rounded-lg border border-primary/20 shadow-inner">
-                  <div className="grid grid-cols-3">
-                      {board.map((square, i) => (
-                          <Square 
-                              key={i}
-                              index={i}
-                              value={square} 
-                              onClick={() => handleClick(i, 'X')} 
-                              isWinning={gameResult.line?.includes(i) ?? false}
-                          />
-                      ))}
-                  </div>
+                <div className="p-2 bg-background/30 rounded-lg border-2 border-primary/20 shadow-inner grid grid-cols-3">
+                  {board.map((square, i) => (
+                      <Square 
+                          key={i}
+                          index={i}
+                          value={square} 
+                          onClick={() => handleClick(i, 'X')} 
+                          isWinning={gameResult.line?.includes(i) ?? false}
+                      />
+                  ))}
                 </div>
                 <div className="text-xl font-semibold text-foreground/80 dark:text-foreground/70 h-8">
                     {status}
